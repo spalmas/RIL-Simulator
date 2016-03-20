@@ -1,52 +1,49 @@
+######################### loading packages
 library(shiny)
+library(truncnorm)
 
 #########################Importing source files
 source("helpers.R")
 source("simulator.R")
 
+renderInputs <- function(prefix) {
+  wellPanel(
+    fluidRow(
+      column(6,
+             selectInput(paste0("hs", '.', prefix), 'Harvesting Scenario', choices = c('Conventional Logging','Reduced Impact Logging'), selected = 'Conventional Logging'),
+             selectInput(paste0("int", '.', prefix), "Intensity of logging", choices = c('Normal', 'High'), selected = c('Normal')),
+             sliderInput(paste0("bos",'.', prefix), "Bosquetes/ha", min = 0, max = 5, value = 0, step = 1)
+      ),
+      column(6,
+             selectInput(paste0("areas", '.', prefix), 'Size of Area', choices = c('Conventional Logging','Reduced Impact Logging'), selected = 'Conventional Logging'),
+             selectInput(paste0("damages", '.', prefix), "Number of damage", choices = c('Normal', 'High'), selected = c('Normal')),
+             sliderInput(paste0("ks",'.', prefix), "Otra cosa", min = 0, max = 5, value = 0, step = 1)
+      )
+    )
+  )
+}
+
 ui <- fluidPage(
   titlePanel("RIL Simulator"),
-  
+  #This is a RIL Simulator with parameters from the Yucatan Peninsula
   #############input for Stand Variables
-  ###harvesting scenario 1
   fluidRow(
-    #Growth Zone
-    column(3,  
-           selectInput(inputId = 'hs1', label = 'Harvesting Scenario 1',
-                       choices = c('Conventional Logging','Reduced Impact Logging'),
-                       selected = 'Conventional Logging')),
-    column(3, 
-           selectInput(inputId = 'int1', label = "Intensity of logging",
-                        choices = c('Normal', 'High'),
-                        selected = c('Normal'))),
-    column(3, 
-           numericInput(inputId = 'bos1', label = "Bosquetes/ha",
-                        min = 0, max = 5, value = 0))
+    column(6, tags$h3("Scenario A")),
+    column(6, tags$h3("Scenario B"))
   ),
-  #Harvesting scenario 2
   fluidRow(
-    #Growth Zone
-    column(3,  
-           selectInput(inputId = 'hs2', label = 'Harvesting Scenario 2',
-                       choices = c('Conventional Logging','Reduced Impact Logging'),
-                       selected = 'Reduced Impact Logging')),
-    column(3, 
-           selectInput(inputId = 'int2', label = "Intensity of logging",
-                       choices = c('Normal', 'High'),
-                       selected = c('Normal'))),
-    column(3, 
-           numericInput(inputId = 'bos2', label = "Bosquetes/ha",
-                        min = 0, max = 5, value = 1))
-    ),
-  
+    column(6, renderInputs("a")),
+    column(6, renderInputs("b"))
+  ),
+
   #Simulator Year
   fluidRow(
     column(3, 
-           numericInput(inputId = 'sy', label = "Simulation Years (0-75)",
-                       min = 1, max = 75, value = 25)),
+           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)",
+                       min = 1, max = 75, value = 25, step = 1)),
     column(3,
-           numericInput(inputId = 'rep', label = "Repetitions (0-1000)",
-                        min = 1, max = 1000, value = 5))
+           sliderInput(inputId = 'it', label = "Iterations (1-1000)",
+                        min = 1, max = 1000, value = 5, step = 10))
     ),
   
   #TREES and SPECIES table input
@@ -72,7 +69,7 @@ server <- function(input, output) {
   trees.tab <- eventReactive(input$run,{
     infile <- input$trees.tab
     if (is.null(infile)) {
-      return(NULL)}  # User has not uploaded a file yet
+      return(stand.randomizer())}  # User has not uploaded a file yet
     read.csv(infile$datapath)
     })
   
@@ -80,7 +77,7 @@ server <- function(input, output) {
   diameter.eqs <- eventReactive(input$run,{
     infile <- input$diameter.eqs
     if (is.null(infile)) {
-      return(NULL)}  # User has not uploaded a file yet
+      return(diameter.default.eqs())}  # User has not uploaded a file yet
     read.csv(infile$datapath)
     })
 
@@ -88,15 +85,17 @@ server <- function(input, output) {
   volume.eqs <- eventReactive(input$run,{
     infile <- input$volume.eqs
     if (is.null(infile)) {
-      return(NULL)}  # User has not uploaded a file yet
+      return(volume.default.eqs())}  # User has not uploaded a file yet
     read.csv(infile$datapath)
   })
   
   
   #---------------SIMULATOR----------------
   table.results  <- eventReactive(input$run,{
-    YieldSimulator(hs = input$hs,
+    YieldSimulator(hs = input$hs.a,
+                   bos = input$bos.a,
                    sy = input$sy,
+                   it = input$it,
                    trees.tab = trees.tab(),
                    diameter.eqs = diameter.eqs(),
                    volume.eqs = volume.eqs())

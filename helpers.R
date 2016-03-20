@@ -1,17 +1,52 @@
+
+
+
 ######################################
 #   helper funcitons for KUUL
 ######################################
 
-#Function to estimate Above Ground Biomass of the trees
+# Function to estimate Above Ground Biomass of the trees
 agb.calc <- function(trees){
-  AGB = sum(0.0673 * (0.7 * trees$DBH^2 * trees$HEIGHT)^0.976)  #Chave 2014 equation
+  #AGB <- sum(0.0673 * (0.7 * trees$DBH^2 * trees$HEIGHT)^0.976)  #Chave 2014 equation
+  AGB <- sum(exp(-2.173+0.868*log(trees$DBH^2*trees$HEIGHT)+0.0939/2)) # Cairns paper
   return (AGB)
 }
 
-#Function to grow diameter of trees
+# Function to grow diameter of trees
 diameter.calc <- function(trees){
   return (trees$DBH + trees$DBH.EQ.B0 + trees$DBH.EQ.B1 * trees$DBH)
 }
+
+# Function to randomize initial stand list
+stand.randomizer <- function(){
+  n.trees <- rpois(n = 1, lambda = 70)     #Random number of trees
+  species.options <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
+  SPECIES.CODE <- sample(species.options, size = n.trees, replace = TRUE)  #A list of n.trees species
+  DBH <- 15 *rexp(n = n.trees)  #random diameter list
+  HEIGHT <- exp(0.93687 + 0.55204*log(DBH))
+  COORD.X <- sample(1:100, size = n.trees)  #random x locations
+  COORD.Y <- sample(1:100, size = n.trees)  #random y locations
+
+  return(data.frame(SPECIES.CODE, DBH, HEIGHT, COORD.X, COORD.Y))
+}
+
+# Function to return a table for diameter growth equations
+diameter.default.eqs <- function(){
+  SPECIES.CODE <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
+  B0 <- c(0.22, 0.41, 0.074, 0.125, 0.062, 0.074)
+  B1 <- c(0, 0, 0.0043, 0.0017, 0.0042, 0.0043)
+  return(data.frame(SPECIES.CODE, B0, B1))
+}
+
+# Function to return a table for DIAMEETER growth equations
+volume.default.eqs <- function(){
+  SPECIES.CODE <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
+  B0 <- c(0.01711, 0.00842, 0.00842, 0.00842, 0.00842, 0.00842)
+  B1 <- c(0.000041591,0.000050894 ,0.000050894,0.000050894,0.000050894,0.000050894)
+  return(data.frame(SPECIES.CODE, B0, B1))
+}
+
+
 
 plot_nav <- function(nav) {
   
