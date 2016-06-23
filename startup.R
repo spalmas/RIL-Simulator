@@ -1,6 +1,7 @@
 #startup file for RIL-Simulation
-
 #run this before trying code. this is not useful for the app
+
+rm(list=ls()) #will remove ALL objects 
 
 source('R/agb_calc.R')
 source('R/assigning_diameter_params.R')

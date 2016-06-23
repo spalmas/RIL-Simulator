@@ -33,10 +33,12 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       #Growth functions
       stand <- assigning_diameter_params(stand, diameter.eqs)   #assigning diameter equation
       stand <- assigning_volume_params(stand, volume.eqs)
-      stand$DIAMETER.GROWTH <- diameter_growth(stand)   #randomize diameter growth
+      stand$DIAMETER.GROWTH <- diameter_growth(stand)   #randomized diameter growth
       stand$DBH <- diameter_growth_assign(stand)  #assign new diameter
-      stand$biomass <- biomass_calc(stand)
-
+      
+      #Estimating the biomass of each tree
+      stand$AGB <- apply(stand[,c('DBH', 'HEIGHT')], 1, agb.calc)
+      
       #harvesting the stand and store harvested trees
       harvested <- harvest(stand, intensity, y, rotation)
         
@@ -51,7 +53,7 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       table.results[row.num,'IT'] <- i   #Adding iteration to table
       table.results[row.num,'YEAR'] <- y   #Adding year to table
       table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
-      table.results[row.num,'AGB'] <- agb.calc(stand)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R)
+      table.results[row.num,'AGB'] <- sum(stand$AGB)  #Estimate biomass from the stand
       
       #Store harvested results
       
