@@ -1,13 +1,32 @@
-######################################
-#   Main Simulation Process
-    #This function dictates the simulation process
+#' Main simulator process
+#'
+#' Lond Description
+#'
+#' @param scenario: 
+#' @param sy
+#' @param it
+#' @param rotation
+#' @param intensity
+#' @param bos
+#' @param w.dist
+#' @param dir.felling
+#' @param improved.trail
+#' @param lower.impact
+#' @param trees.tab
+#' @param diameter.eqs
+#' @param volume.eqs
+#'
+#' @references
+#' Ninguna por ahora
 
-# all scripts from R folder
-######################################
-
-
-#########################Importing source files
-
+#' @return a table with yearly results of BA (Basal Area in the stand), AGB (aboveground biomass in stand), INCOME, volume extracted, total sell price of products extraccted 
+#'
+#' @seealso \code{\link{hd_coef}}. For BA, QD and N see \code{\link{get_stand}}
+#'
+#' @examples
+#' # Example 1: Obtain Dominant Age
+#' (AD<-get_site(dom_sp=1, zo
+#' 
 
 simulator <- function(scenario, sy, it,    #General simulation parameters
                            rotation, intensity, bos, w.dist, dir.felling, improved.trail, lower.impact,  #Harvesting scenario
@@ -30,23 +49,22 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       stand <- stand.after.mortality[[1]]
       stand.dead <- stand.after.mortality[[2]]
       
-      #Growth functions
+      ####### GROWTH FUNCTIONS
       stand <- assigning_diameter_params(stand, diameter.eqs)   #assigning diameter equation
       stand <- assigning_volume_params(stand, volume.eqs)
       stand$DIAMETER.GROWTH <- diameter_growth(stand)   #randomized diameter growth
       stand$DBH <- diameter_growth_assign(stand)  #assign new diameter
       
-      #Estimating the biomass of each tree
+      ####### Estimating the biomass of each tree
       stand$AGB <- apply(stand[,c('DBH', 'HEIGHT')], 1, agb.calc)
       
-      #harvesting the stand and store harvested trees
-      harvested <- harvest(stand, intensity, y, rotation)
-        
-      #Removing those harvested from the stand
-      stand <- stand[!rownames(stand) %in% rownames(harvested),]
-       
-      #Regeration process
-      stand <- regeneration.calc(stand)
+      ####### HARVESTED TREES
+      harvested <- harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
+      harvested$price <- harvested.price(harvested)       #Assigning price to each tree
+      
+      ####### REMAINING STAND OPERATIONS
+      stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
+      stand <- regeneration.calc(stand)             #Regeration process
       
       #Storing stand results 
       row.num <- y+(i-1)*sy #row number based on the repetition and simulation year
