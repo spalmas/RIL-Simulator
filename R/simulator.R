@@ -35,6 +35,7 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       stand <- assigning_volume_params(stand, volume.eqs)
       stand$DIAMETER.GROWTH <- diameter_growth(stand)   #randomize diameter growth
       stand$DBH <- diameter_growth_assign(stand)  #assign new diameter
+      stand$biomass <- biomass_calc(stand)
 
       #harvesting the stand and store harvested trees
       harvested <- harvest(stand, intensity, y, rotation)

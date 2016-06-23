@@ -8,50 +8,34 @@ file.sources = list.files(path = 'R/', pattern="*.R")
 sapply(paste0('R/',file.sources), source, .GlobalEnv)
 #source('R/simulator.R')
 
-renderInputs <- function(prefix) {
-  wellPanel(
-    fluidRow(
-      column(6,
-             sliderInput(paste0("rotation",'.', prefix), "Rotation Years", min = 1, max = 50, value = 0, step = 1),
-             sliderInput(paste0("bos",'.', prefix), "Bosquetes/ha", min = 0, max = 5, value = 0, step = 1),
-             sliderInput(paste0("w.dist",'.', prefix), "Winching distance", min = 0, max = 30, value = 0, step = 1)
-      ),
-      column(6,
-             selectInput(paste0("intensity", '.', prefix), "Intensity of logging", choices = c('Normal', 'High'), selected = c('Normal')),
-             checkboxInput(paste0("dir.felling", '.', prefix), label = 'Directional felling', value = TRUE),
-             checkboxInput(paste0("improved.trail", '.', prefix), label = 'Improved Skid Trail planning', value = TRUE),
-             checkboxInput(paste0("lower.impact", '.', prefix), label = 'Lower-impact skidding', value = TRUE)
-      )
-    )
-  )
-}
-
 ui <- fluidPage(
   titlePanel("RIL Simulator"),
   #This is a RIL Simulator with parameters from the Yucatan Peninsula
   #############input for Stand Variables
   fluidRow(
-    column(6, tags$h3("Scenario inputs"))
+    column(9, tags$h3("Scenario inputs"))
   ),
   fluidRow(
-    column(6, renderInputs("a"))
-  ),
-
-  #Simulator Year
-  fluidRow(
-    column(3, 
-           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)",
-                       min = 5, max = 80, value = 25, step = 1)),
     column(3,
-           sliderInput(inputId = 'it', label = "Iterations (1-1000)",
-                        min = 5, max = 1000, value = 5, step = 10))
+           sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 0, step = 1),
+           sliderInput("bos", "Bosquetes/ha", min = 0, max = 5, value = 0, step = 1),
+           sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
     ),
-  
-  #TREES and SPECIES table input
-  fluidRow(
-    column(4, fileInput('trees.tab', label = 'Tree Inventory')),
-    column(4, fileInput('diameter.eqs', label = 'Diameter Growth')),
-    column(4, fileInput('volume.eqs', label = 'Volume Growth'))
+    column(3,
+           selectInput("intensity", "Intensity of logging", choices = c('Normal', 'High'), selected = c('Normal')),
+           checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
+           checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
+           checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE)
+    ),
+    column(3,
+           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 80, value = 25, step = 1),
+           sliderInput(inputId = 'it', label = "Iterations (1-1000)", min = 5, max = 1000, value = 5, step = 10)
+    ),
+    column(3,
+           fileInput('trees.tab', label = 'Tree Inventory'),
+           fileInput('diameter.eqs', label = 'Diameter Growth'),
+           fileInput('volume.eqs', label = 'Volume Growth')
+    )
   ),
   
   actionButton(inputId = 'run', label = 'Run!', 
@@ -99,13 +83,13 @@ server <- function(input, output) {
   #---------------SIMULATOR----------------
   table.results.a  <- eventReactive(input$run,{
     simulator(scenario = 'A' , sy = input$sy, it = input$it,
-                   rotation = input$rotation.a,
-                   intensity = input$intensity.a,
-                   bos = input$bos.a,
-                   w.dist = input$w.dist.a,
-                   dir.felling = input$dir.felling.a,
-                   improved.trail = input$improved.trail.a,
-                   lower.impact = input$lower.impact.a,
+                   rotation = input$rotation,
+                   intensity = input$intensity,
+                   bos = input$bos,
+                   w.dist = input$w.dist,
+                   dir.felling = input$dir.felling,
+                   improved.trail = input$improved.trail,
+                   lower.impact = input$lower.impact,
                    trees.tab = trees.tab(),
                    diameter.eqs = diameter.eqs(),
                    volume.eqs = volume.eqs())
