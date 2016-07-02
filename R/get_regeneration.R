@@ -1,5 +1,5 @@
 #regeneration simulation of a stand
-regeneration.calc <- function(stand){
+get.regeneration <- function(stand){
   
   return(stand)
 }
