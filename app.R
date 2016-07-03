@@ -30,11 +30,6 @@ ui <- fluidPage(
     column(3,
            sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 80, value = 25, step = 1),
            sliderInput(inputId = 'it', label = "Iterations (1-1000)", min = 5, max = 1000, value = 5, step = 10)
-    ),
-    column(3,
-           fileInput('trees.tab', label = 'Tree Inventory'),
-           fileInput('diameter.eqs', label = 'Diameter Growth'),
-           fileInput('volume.eqs', label = 'Volume Growth')
     )
   ),
   
@@ -49,37 +44,6 @@ ui <- fluidPage(
 
 server <- function(input, output) {
 
-  #---------------READING FILES----------------
-  #If the RUN! button is pushed, this code will make a trees()
-  trees.tab <- eventReactive(input$run,{
-    infile <- input$trees.tab
-    if (!is.null(infile)) {  # User has not uploaded a file yet
-      read.csv(infile$datapath)
-      }
-    stand.randomizer()
-    })
-  
-  #Diameter growth parameters
-  diameter.eqs <- eventReactive(input$run,{
-    infile <- input$diameter.eqs
-    if (!is.null(infile)) {    # User has not uploaded a file yet
-      read.csv(infile$datapath)
-      #return(diameter_growth_default)
-    }  
-    read.csv(file = "Data/diameter_growth.csv")
-    })
-
-  #Volume ~ Diameter Equation
-  volume.eqs <- eventReactive(input$run,{
-    infile <- input$volume.eqs
-    if (!is.null(infile)) {   # if user has not uploaded a file
-      read.csv(infile$datapath)
-      #return(volume_equations_default)
-      } 
-    read.csv(file = "Data/volume_equations.csv")
-  })
-  
-  
   #---------------SIMULATOR----------------
   table.results.a  <- eventReactive(input$run,{
     simulator(scenario = 'A' , sy = input$sy, it = input$it,

@@ -1,4 +1,4 @@
-harvest <- function(stand, intensity, y, rotation){
+get.harvest <- function(stand, intensity, y, rotation){
   if (y%%rotation == 0 | y == 0){    #only if the year is a rotation
     if (intensity == 'Normal'){
     #harvesting 50% of the harvestable trees. Randomized

@@ -50,17 +50,18 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       stand.dead <- stand.after.mortality[[2]]
       
       ####### GROWTH FUNCTIONS
-      stand <- assigning_diameter_params(stand, diameter.eqs)   #assigning diameter equation
-      stand <- assigning_volume_params(stand, volume.eqs)
-      stand$DIAMETER.GROWTH <- diameter_growth(stand)   #randomized diameter growth
-      stand$DBH <- diameter_growth_assign(stand)  #assign new diameter
+      stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
+      stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter
+      
+      ####### VOLUME  
+      stand$VOLUME <- get.volume(stand)
       
       ####### Estimating the biomass of each tree
-      stand$AGB <- apply(stand[,c('DBH', 'HEIGHT')], 1, agb.calc)
+      stand$AGB <- get.agb(stand)
       
       ####### HARVESTED TREES
       harvested <- harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
-      harvested$price <- harvested.price(harvested)       #Assigning price to each tree
+      harvested$price <- get.price(harvested)       #Assigning price to each tree
       
       ####### REMAINING STAND OPERATIONS
       stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
