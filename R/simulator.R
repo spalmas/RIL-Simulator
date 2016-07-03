@@ -59,12 +59,14 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       ####### Estimating the biomass of each tree
       stand$AGB <- get.agb(stand)
       
-      ####### HARVESTED TREES
-      harvested <- harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
-      harvested$price <- get.price(harvested)       #Assigning price to each tree
+      ####### HARVESTING TREES
+      if (intensity != 'No Logging'){
+        harvested <- harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
+        harvested$price <- get.price(harvested)       #Assigning price to each tree
+        stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
+      }
       
       ####### REMAINING STAND OPERATIONS
-      stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
       stand <- regeneration.calc(stand)             #Regeration process
       
       #Storing stand results 

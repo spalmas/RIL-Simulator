@@ -22,14 +22,15 @@ ui <- fluidPage(
            sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
     ),
     column(3,
-           selectInput("intensity", "Intensity of logging", choices = c('Normal', 'High'), selected = c('Normal')),
+           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
            checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
            checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE)
     ),
     column(3,
            sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 80, value = 25, step = 1),
-           sliderInput(inputId = 'it', label = "Iterations (1-1000)", min = 5, max = 1000, value = 5, step = 10)
+           sliderInput(inputId = 'it', label = "Iterations (1-500)", min = 5, max = 500, value = 5, step = 10),
+           fileInput('trees.tab', label = 'Tree Inventory')
     )
   ),
   
@@ -43,7 +44,16 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-
+  #trees tab information
+  trees.tab <- eventReactive(input$run,{
+    infile <- input$trees.tab
+    if (!is.null(infile)) {  # User has not uploaded a file yet
+      read.csv(infile$datapath)
+    }
+    stand.randomizer()
+  })
+  
+  
   #---------------SIMULATOR----------------
   table.results.a  <- eventReactive(input$run,{
     simulator(scenario = 'A' , sy = input$sy, it = input$it,
