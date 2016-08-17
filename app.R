@@ -64,9 +64,7 @@ server <- function(input, output) {
                    dir.felling = input$dir.felling,
                    improved.trail = input$improved.trail,
                    lower.impact = input$lower.impact,
-                   trees.tab = trees.tab(),
-                   diameter.eqs = diameter.eqs(),
-                   volume.eqs = volume.eqs())
+                   trees.tab = trees.tab())
   })
   
   #---------------OUTPUT FUNCIONS----------------

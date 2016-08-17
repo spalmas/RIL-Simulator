@@ -25,12 +25,11 @@
 #'
 #' @examples
 #' # Example 1: Obtain Dominant Age
-#' (AD<-get_site(dom_sp=1, zo
 #' 
 
 simulator <- function(scenario, sy, it,    #General simulation parameters
                            rotation, intensity, bos, w.dist, dir.felling, improved.trail, lower.impact,  #Harvesting scenario
-                           trees.tab, diameter.eqs, volume.eqs){  #inventory and equations
+                           trees.tab){  #inventory and equations
 
   ### TABLE TO STORE VALUES AND REPORT -----------
   columns <- c('SCENARIO', 'IT', 'YEAR', 'BA', 'AGB', 'INCOME', 'VOLUME')
@@ -44,10 +43,13 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
     stand <- trees.tab  #return to initial stand
     
     for (y in 1:sy){   #For each simulation year
-      #Mortality 
+      #MORTALITY
       stand.after.mortality <- mortality.calc(stand)
       stand <- stand.after.mortality[[1]]
       stand.dead <- stand.after.mortality[[2]]
+      
+      ####### REGENERATION
+      stand <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
       
       ####### GROWTH FUNCTIONS
       stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
@@ -56,27 +58,22 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       ####### VOLUME  
       stand$VOLUME <- get.volume(stand)
       
-      ####### Estimating the biomass of each tree
+      ####### BIOMASS 
       stand$AGB <- get.agb(stand)
       
       ####### HARVESTING TREES
       if (intensity != 'No Logging'){
-        harvested <- harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
+        harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
         harvested$price <- get.price(harvested)       #Assigning price to each tree
         stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
       }
-      
-      ####### REMAINING STAND OPERATIONS
-      stand <- regeneration.calc(stand)             #Regeration process
-      
+
       #Storing stand results 
-      row.num <- y+(i-1)*sy #row number based on the repetition and simulation year
+      row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year
       table.results[row.num,'IT'] <- i   #Adding iteration to table
       table.results[row.num,'YEAR'] <- y   #Adding year to table
-      table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
-      table.results[row.num,'AGB'] <- sum(stand$AGB)  #Estimate biomass from the stand
-      
-      #Store harvested results
+      table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
+      table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
       
     }  
   }

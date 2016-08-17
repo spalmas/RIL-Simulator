@@ -17,6 +17,9 @@ get.diameter.growth <- function(stand){
                        mean = list.mean,
                        sd = list.sd)
   
+  #there are no negative growth rates
+  list.D.DBH[list.D.DBH < 0 ] <- 0
+  
   
   return(list.D.DBH)
 }
