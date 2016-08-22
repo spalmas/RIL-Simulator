@@ -9,6 +9,7 @@ regen.params <- read.csv('Data/regenation_params.csv', sep = ',')
 
 get.regeneration <- function(stand, canopy.cover){
   #subset data to only that canopy cover
+  canopy.cover  <- 999
   regen.params.subset <- regen.params[regen.params$CANOPY.COVER == canopy.cover,]
   #regen.params.subset <- regen.params[regen.params$CANOPY.COVER == 999,]
   
@@ -42,10 +43,10 @@ get.regeneration <- function(stand, canopy.cover){
   regen.table$HEIGHT <- exp(0.93687 + 0.55204*log(regen.table$DBH))
   regen.table$COORD.X <- NA
   regen.table$COORD.Y <- NA
-  #regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
+  regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
   #regen.table$DBH <- regen.table$DBH + regen.table$DIAMETER.GROWTH #assign new diameter
-  #regen.table$VOLUME <- get.volume(regen.table)
-  #regen.table$AGB <- get.agb(regen.table)
+  regen.table$VOLUME <- get.volume(regen.table)
+  regen.table$AGB <- get.agb(regen.table)
 
   
     #regen.table$DIAMETER.GROWTH <- NA
@@ -55,9 +56,8 @@ get.regeneration <- function(stand, canopy.cover){
   #delete row names to avoid problems later
   row.names(regen.table) <- NULL
   
-  stand <- rbind(stand, regen.table)  #adding the new trees to the stand
   
   
-  return(stand)
+  return(regen.table)
 }
 

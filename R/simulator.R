@@ -48,9 +48,7 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       stand <- stand.after.mortality[[1]]
       stand.dead <- stand.after.mortality[[2]]
       
-      ####### REGENERATION
-      stand <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
-      
+     
       ####### GROWTH FUNCTIONS
       stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
       stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter
@@ -60,6 +58,10 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       
       ####### BIOMASS 
       stand$AGB <- get.agb(stand)
+
+      ####### REGENERATION
+      regen.table <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
+      stand <- rbind(stand, regen.table)  #adding the new trees to the stand
       
       ####### HARVESTING TREES
       if (intensity != 'No Logging'){
