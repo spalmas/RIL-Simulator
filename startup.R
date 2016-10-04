@@ -3,16 +3,19 @@
 
 rm(list=ls()) #will remove ALL objects 
 
-source('R/agb_calc.R')
-source('R/assigning_diameter_params.R')
-source('R/assigning_volume_params.R')
-#source('R/biomass_calc.R')   #probably not needed
-source('R/diameter_growth.R')
-source('R/diameter_growth_assign.R')
-#source('R/euc_distance.R')  #probably not needed
+source('R/do_enrichment.R')
+source('R/get_agb.R')
+source('R/get_diameter_growth.R')
+source('R/get_harvest.R')
+source('R/get_height.R')
+source('R/get_price.R')
+source('R/get_volume.R')
 source('R/ggplot_params.R')
-source('R/harvest.R')
-source('R/regeneration_calc.R')
-source('R/simulator.R')
+source('R/get_harvest.R')
+source('R/get_regeneration.R')
+source('R/mortality_calc.R')
 source('R/stand_parameters_calc.R')
 source('R/stand_randomizer.R')
+source('R/winching_mortality.R')
+
+source('R/simulator.R')

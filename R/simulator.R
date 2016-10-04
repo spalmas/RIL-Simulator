@@ -7,7 +7,7 @@
 #' @param it
 #' @param rotation
 #' @param intensity
-#' @param bos
+#' @param enrich.bosquete The ejido performs enrichment bosquete planting (TRUE or FALSE)
 #' @param w.dist
 #' @param dir.felling
 #' @param improved.trail
@@ -28,14 +28,14 @@
 #' 
 
 simulator <- function(scenario, sy, it,    #General simulation parameters
-                           rotation, intensity, bos, w.dist, dir.felling, improved.trail, lower.impact,  #Harvesting scenario
+                           rotation, intensity, enrich.bosquete, w.dist, dir.felling, improved.trail, lower.impact,  #Harvesting scenario
                            trees.tab){  #inventory and equations
 
   ### TABLE TO STORE VALUES AND REPORT -----------
   columns <- c('SCENARIO', 'IT', 'YEAR', 'BA', 'AGB', 'INCOME', 'VOLUME')
   table.results <- data.frame(matrix(ncol = length(columns), nrow = sy*it))
   colnames(table.results) <- columns
-  
+  #stand <- stand.randomizer()
   table.results$SCENARIO <- scenario  #letter of scenario to the table
   
   #LOOP OF SIMULATION YEARS AND ITERATIONS-----------
@@ -43,12 +43,12 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
     stand <- trees.tab  #return to initial stand
     
     for (y in 1:sy){   #For each simulation year
+      #y = 20
       #MORTALITY
       stand.after.mortality <- mortality.calc(stand)
       stand <- stand.after.mortality[[1]]
       stand.dead <- stand.after.mortality[[2]]
       
-     
       ####### GROWTH FUNCTIONS
       stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
       stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter
@@ -63,13 +63,22 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       regen.table <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
       stand <- rbind(stand, regen.table)  #adding the new trees to the stand
       
-      ####### HARVESTING TREES
-      if (intensity != 'No Logging'){
+      if (y%%rotation == 0 | y == 0){    #only if the year is a rotation (year 0 or year rotation.
+        ####### HARVESTING TREES
         harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
         harvested$price <- get.price(harvested)       #Assigning price to each tree
         stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
+        
+        ####### DO ENRICHMENT PLANTING
+        enrichment.table <- do.enrichment(enrich.bosquete = enrich.bosquete, harvested = harvested)
+        stand <- rbind(stand, enrichment.table)  #adding the new trees to the stand
+        
+        ####### DO WINCHING MORTALITY
+        inside <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
+        winching.dead <- stand[inside,]
+        stand <- stand[!inside,]  #removing those that fall inside the mortality place
       }
-
+      
       #Storing stand results 
       row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year
       table.results[row.num,'IT'] <- i   #Adding iteration to table

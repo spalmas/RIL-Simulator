@@ -18,14 +18,14 @@ ui <- fluidPage(
   fluidRow(
     column(3,
            sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 0, step = 1),
-           sliderInput("bos", "Bosquetes/ha", min = 0, max = 5, value = 0, step = 1),
            sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
     ),
     column(3,
            selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
            checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
-           checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE)
+           checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
+           checkboxInput("enrich.bosquete", "Enrichment of bosquetes", value = TRUE)
     ),
     column(3,
            sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 80, value = 25, step = 1),
@@ -59,7 +59,7 @@ server <- function(input, output) {
     simulator(scenario = 'A' , sy = input$sy, it = input$it,
                    rotation = input$rotation,
                    intensity = input$intensity,
-                   bos = input$bos,
+                   enrich.bosquete = input$enrich.bosquete,
                    w.dist = input$w.dist,
                    dir.felling = input$dir.felling,
                    improved.trail = input$improved.trail,

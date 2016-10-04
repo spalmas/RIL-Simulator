@@ -4,9 +4,11 @@ stand.randomizer <- function(){
   species.options <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
   SPECIES.CODE <- sample(species.options, size = n.trees, replace = TRUE)  #A list of n.trees species
   DBH <- 15 *rexp(n = n.trees)  #random diameter list
-  HEIGHT <- exp(0.93687 + 0.55204*log(DBH))
-  COORD.X <- sample(1:100, size = n.trees)  #random x locations
-  COORD.Y <- sample(1:100, size = n.trees)  #random y locations
+  HEIGHT <- get.height(DBH)
+  UNDER.BOSQUETE <- rep(x = FALSE, times = n.trees)
   
-  return(data.frame(SPECIES.CODE, DBH, HEIGHT, COORD.X, COORD.Y))
+  COORD.X <- runif(n = n.trees, min = 0, max=99)
+  COORD.Y <- runif(n = n.trees, min = 0, max=99)
+
+  return(data.frame(SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X, COORD.Y))
 }

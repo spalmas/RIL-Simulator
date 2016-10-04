@@ -19,19 +19,19 @@ get.regeneration <- function(stand, canopy.cover){
   regen.params.subset <- regen.params.subset[regen.params.subset$SPECIES.CODE %in% stand$SPECIES.CODE,]
   
   #randomization of normal regeneration value
-  regen.list <- mapply(rnorm,
+  regen.n <- mapply(rnorm,
                        n = 1,
                        mean = regen.params.subset$REG.N.HA.MEAN,
                        sd = regen.params.subset$REG.N.HA.SD)
   
   #There is no negative recruitment
-  regen.list[regen.list <0] <- 1  #at least one tree regenerated
+  regen.n[regen.n <0] <- 1  #at least one tree regenerated
   
   #Convert number of recruits in integers
-  regen.list <- round(regen.list)
+  regen.n <- round(regen.n)
   
   #Adding species names and creating a table
-  regen.table <- data.frame(SPECIES.CODE = regen.params.subset$SPECIES.CODE, REGEN.N = regen.list)
+  regen.table <- data.frame(SPECIES.CODE = regen.params.subset$SPECIES.CODE, REGEN.N = regen.n)
   
   
   regen.table <- data.frame(SPECIES.CODE = unlist(mapply(rep,
@@ -40,13 +40,15 @@ get.regeneration <- function(stand, canopy.cover){
   
   #adding the columns as in the normal stand table
   regen.table$DBH <- rnorm(n = nrow(regen.table), mean = 5, sd = 1)
-  regen.table$HEIGHT <- exp(0.93687 + 0.55204*log(regen.table$DBH))
-  regen.table$COORD.X <- NA
-  regen.table$COORD.Y <- NA
+  regen.table$HEIGHT <- get.height(regen.table$DBH)
   regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
   #regen.table$DBH <- regen.table$DBH + regen.table$DIAMETER.GROWTH #assign new diameter
   regen.table$VOLUME <- get.volume(regen.table)
   regen.table$AGB <- get.agb(regen.table)
+  regen.table$UNDER.BOSQUETE <- FALSE
+  regen.table$COORD.X <- runif(n = sum(regen.n), min = 0, max = 99)
+  regen.table$COORD.Y <- runif(n = sum(regen.n), min = 0, max = 99)
+  
 
   
     #regen.table$DIAMETER.GROWTH <- NA
