@@ -14,13 +14,13 @@ get.volume <- function(stand){
   #this should be allowed to be input by the user. Maybe later
   
   #This equation is in form b0 + b1*DHB^2*H
-  prices <- data.frame(SPECIES.CODE = c('SM', 'LL', 'MB', 'MZ', 'PU', 'DURAS', 'BLANDAS', 'BE', 'CO', 'XX'),
+  parameters <- data.frame(SPECIES.CODE = c('SM', 'LL', 'MB', 'MZ', 'PU', 'DURAS', 'BLANDAS', 'BE', 'CO', 'XX'),
                        B0 = c(0.01711, 0.00842, 0.00842, 0.00842, 0.00842, 0.00842, 0.01247, 0.03139, 0.07055, 0.00842),
                        B1 = c(0.000041591, 0.000050894, 0.000050894, 0.000050894, 0.000050894, 0.000050894,0.000047554, 0.000038954,0.000047705,0.000050894))
   
   #Calculating volume
-  return(prices$B0[ match(stand$SPECIES.CODE, prices$SPECIES.CODE ) ] +
-    prices$B1[ match(stand$SPECIES.CODE, prices$SPECIES.CODE ) ] * stand$DBH^2 * stand$HEIGHT)
+  return(parameters$B0[ match(stand$SPECIES.CODE, parameters$SPECIES.CODE ) ] +
+    parameters$B1[ match(stand$SPECIES.CODE, parameters$SPECIES.CODE ) ] * stand$DBH^2 * stand$HEIGHT)
 
 }
 
