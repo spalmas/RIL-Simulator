@@ -1,5 +1,6 @@
 ######################### loading packages
 library(ggplot2)
+library(mgcv)
 library(shiny)
 library(truncnorm)
 
@@ -17,6 +18,7 @@ ui <- fluidPage(
   ),
   fluidRow(
     column(3,
+           textInput('scenario', "Scenario", value = 'A'),
            sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 0, step = 1),
            sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
     ),
@@ -37,15 +39,15 @@ ui <- fluidPage(
   actionButton(inputId = 'run', label = 'Run!', 
                icon = icon('line-chart', class = NULL, lib = "font-awesome")),
   
-  plotOutput("agb.plot")
-  #plotOutput("agb.plot2"),
-  #textOutput("BA"),
-  #tableOutput("filetable")
+  plotOutput(outputId = "agb.plot"),
+  
+  #Button to download results data.
+  downloadButton(outputId = 'downloadData', label =  'Download')
 )
 
 server <- function(input, output) {
   #trees tab information
-  trees.tab <- eventReactive(input$run,{
+  trees.tab <- eventReactive(eventExpr = input$run,{
     infile <- input$trees.tab
     if (!is.null(infile)) {  # User has not uploaded a file yet
       read.csv(infile$datapath)
@@ -55,28 +57,48 @@ server <- function(input, output) {
   
   
   #---------------SIMULATOR----------------
-  table.results.a  <- eventReactive(input$run,{
-    simulator(scenario = 'A' , sy = input$sy, it = input$it,
-                   rotation = input$rotation,
-                   intensity = input$intensity,
-                   enrich.bosquete = input$enrich.bosquete,
-                   w.dist = input$w.dist,
-                   dir.felling = input$dir.felling,
-                   improved.trail = input$improved.trail,
-                   lower.impact = input$lower.impact,
-                   trees.tab = trees.tab())
+  table.results  <- eventReactive(input$run,{
+    simulator(scenario = input$scenario,
+              it = input$it,
+              sy = input$sy,
+              rotation = input$rotation,
+              intensity = input$intensity,
+              enrich.bosquete = input$enrich.bosquete,
+              w.dist = input$w.dist,
+              dir.felling = input$dir.felling,
+              improved.trail = input$improved.trail,
+              lower.impact = input$lower.impact,
+              trees.tab = trees.tab())
   })
   
   #---------------OUTPUT FUNCIONS----------------
+  #eventReactive() returns NULL until the action button is
+  #clicked. As a result, the graph does not appear until 
+  #the user asks for it by clicking “Go”.
   output$agb.plot <- renderPlot({
-    g <- ggplot(rbind(table.results.a()), aes(x = YEAR, y = AGB))
-    g + stat_summary(aes(fill = SCENARIO), fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
-      stat_summary(aes(colour = SCENARIO), fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
+    g <- ggplot(rbind(table.results()), aes(x = YEAR, y = AGB/1000))
+    g + stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
+      stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  #assigning colors to ribbons
   })
-
+  
+  #---------------DOWNLOAD TABLE OF RESULTS----------------
+  #Downloading works only outside Rstudio. It needs to run externally to work
+  output$downloadData <- downloadHandler(
+    # This function returns a string which tells the client browser what name to use when saving the file.
+    filename = function() {
+      paste(input$scenario,'.csv', sep = '')
+    },
+    
+    # This function should write data to a file given to it by the argument 'file'.
+    content = function(file) {
+      # Write to a file specified by the 'file' argument
+      write.csv(x = table.results(), file = file,
+                  row.names = FALSE)
+    }
+  )
   #output$BA <- renderText({standcalc(trees.tab())})
     
   #output$filetable <- renderTable({
