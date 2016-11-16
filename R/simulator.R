@@ -24,15 +24,45 @@
 #' @seealso \code{\link{hd_coef}}. For BA, QD and N see \code{\link{get_stand}}
 #'
 #' @examples
-#' # Example 1: Obtain Dominant Age
+#' source('startup.R')
+#' sy <- 15
+#' it <- 2
+#' rotation <- 10
+#' intensity <- 'Normal'
+#' enrich.bosquete <- TRUE
+#' w.dist <- 5
+#' dir.felling <- TRUE
+#' improved.trail <- TRUE
+#' lower.impact <- TRUE 
+#' trees.tab <- stand.randomizer()
 #' 
+#' table.results <- simulator(sy = sy, 
+#'     it = it,
+#'     rotation = rotation, 
+#'     intensity = intensity,
+#'     enrich.bosquete = enrich.bosquete, 
+#'     w.dist = w.dist, 
+#'     dir.felling  = dir.felling, 
+#'     improved.trail = improved.trail, 
+#'     lower.impact = lower.impact, 
+#'     trees.tab  = trees.tab)
+#'     
+#' View(table.results)
 
-simulator <- function(scenario, sy, it,    #General simulation parameters
-                           rotation, intensity, enrich.bosquete, w.dist, dir.felling, improved.trail, lower.impact,  #Harvesting scenario
-                           trees.tab){  #inventory and equations
+simulator <- function(scenario = 'A',
+                      sy, 
+                      it, 
+                      rotation, 
+                      intensity, 
+                      enrich.bosquete, 
+                      w.dist, 
+                      dir.felling, 
+                      improved.trail, 
+                      lower.impact,
+                      trees.tab){ 
 
   ### TABLE TO STORE VALUES AND REPORT -----------
-  columns <- c('SCENARIO', 'IT', 'YEAR', 'BA', 'AGB', 'INCOME', 'VOLUME')
+  columns <- c('SCENARIO', 'IT', 'YEAR', 'BA', 'AGB', 'INCOME')
   table.results <- data.frame(matrix(ncol = length(columns), nrow = sy*it))
   colnames(table.results) <- columns
   #stand <- stand.randomizer()
@@ -41,10 +71,13 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
   #LOOP OF SIMULATION YEARS AND ITERATIONS-----------
   for (i in 1:it){   #For each iteration
     stand <- trees.tab  #return to initial stand
+    AGB0 <- sum(get.agb(stand), na.rm = TRUE)  #First AGB estimate
+    AGB1 <- AGB0  #The first year the sequestration is 0
     
     for (y in 1:sy){   #For each simulation year
-      #y = 20
-      #MORTALITY
+      row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year for table of results
+
+      ####### #MORTALITY
       stand.after.mortality <- mortality.calc(stand)
       stand <- stand.after.mortality[[1]]
       stand.dead <- stand.after.mortality[[2]]
@@ -52,43 +85,66 @@ simulator <- function(scenario, sy, it,    #General simulation parameters
       ####### GROWTH FUNCTIONS
       stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
       stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter
-      
-      ####### VOLUME  
-      stand$VOLUME <- get.volume(stand)
+
+      ####### REGENERATION
+      #it only occurs every four years
+      if (y%%4 == 0){
+        regen.table <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
+        stand <- rbind(stand, regen.table)  #adding the new trees to the stand
+      }
       
       ####### BIOMASS 
       stand$AGB <- get.agb(stand)
-
-      ####### REGENERATION
-      regen.table <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
-      stand <- rbind(stand, regen.table)  #adding the new trees to the stand
+      AGB.sequestered <- sum(stand$AGB, na.rm = TRUE) - AGB0  #Sequestred value
+      AGB0 <- AGB1  #Updating value      
       
-      if (y%%rotation == 0 | y == 0){    #only if the year is a rotation (year 0 or year rotation.
+      ####### DEFAULT VALUES FOR SOME VARIABLES. WILL NOT CHANGE IF THIS IS NOT A HARVESTING YEAR IN THE ROTATION.
+      table.results[row.num, 'N.HARVESTED'] <- 0
+      table.results[row.num, 'VOL.HARVESTED'] <- 0
+      table.results[row.num, 'INCOME'] <- 0
+      emissions.harvest <- 0
+      emissions.winching <- 0
+      
+      ####### THINGS HAPPENING IF THIS A HARVESTING YEAR IN THE ROTATION
+      if (y%%rotation == 0 | y == 0){
         ####### HARVESTING TREES
         harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
-        harvested$price <- get.price(harvested)       #Assigning price to each tree
+        harvested$VOLUME <- get.volume(harvested)     #Get total volume harvested
+        harvested$PRICE <- get.price(harvested)       #Assigning price to each tree
         stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
+      
+        table.results$N.HARVESTED[row.num] <- nrow(harvested)  #All volume extracted in that year
+        table.results$VOL.HARVESTED[row.num] <- sum(harvested$VOLUME, na.rm = TRUE)  #All volume extacted in that year
+        table.results$INCOME[row.num] <- sum(harvested$PRICE, na.rm = TRUE)  #All income from trees harvested in that year
+        emissions.harvest <- sum(harvested$AGB, na.rm = TRUE)  #Harvested Biomass 
         
         ####### DO ENRICHMENT PLANTING
         enrichment.table <- do.enrichment(enrich.bosquete = enrich.bosquete, harvested = harvested)
         stand <- rbind(stand, enrichment.table)  #adding the new trees to the stand
+        AGB.sequestered <- sum(enrichment.table$AGB, AGB.sequestered, na.rm = TRUE) #Adding the small sequestered biomass
         
-        ####### DO WINCHING MORTALITY
+        ####### DO WINCHING MORTALITY AND EMISSIONS COUNTING
         inside <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
-        winching.dead <- stand[inside,]
-        stand <- stand[!inside,]  #removing those that fall inside the mortality place
+        winching.dead <- stand[(inside & stand$DBH < 15),] #kills inside area and small trees (is 15cm OK?)
+        emissions.winching <- sum(winching.dead$AGB, na.rm = TRUE) #Winching mortality emissions
+        stand <- stand[!(inside & stand$DBH < 15),]  #keeping trees that are outside of the mortality rectangle and are bigger than 15 cm in DBH
       }
       
       #Storing stand results 
-      row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year
       table.results[row.num,'IT'] <- i   #Adding iteration to table
       table.results[row.num,'YEAR'] <- y   #Adding year to table
       table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
       table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
+      table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest  #Estimate biomass from the stand harvest
+      table.results[row.num,'EMISSIONS.WINCHING'] <- emissions.winching  #Emissions from winching
+      table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
       
     }  
   }
   
+  #Estimate the total Emissions for each year
+  table.results['EMISSIONS'] <- table.results$EMISSIONS.HARVEST + table.results$EMISSIONS.WINCHING
+  table.results['NET.SEQUESTERED'] <- table.results$SEQUESTERED - table.results$EMISSIONS #Estimate sequestered biomass from the stand
   
   #Return table of results
   return(table.results)

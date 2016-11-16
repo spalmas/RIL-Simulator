@@ -1,19 +1,21 @@
 #' Function to estimate Above Ground Biomass of the trees from Cairns Paper
 #'
-#' Lond Description
+#' Gets the AGB for a table of trees
 #'
-#' @param 
-#' @param 
+#' @param stand: table of trees with columns of DBH and HEIGHT 
 #'
-#' @references
+#' @references  Cairns paper
 #' 
-#' @return AGB in kilograms of Carbon of dried biomass
-#'
-#' @seealso \code{\link{hd_coef}}. For BA, QD and N see \code{\link{get_stand}}
+#' @return AGB in megagrams of Carbon of dried biomass
 #'
 #' @examples
+#' source('startup.R')
+#' stand <- stand.randomizer()
+#' stand <- get.regeneration(stand)
+#' get.agb(stand)
 
 get.agb <- function(stand){
-  return(0.47*(exp(-2.173+0.868 * log(stand$DBH^2 * stand$HEIGHT)+0.0939 / 2))) # Cairns paper
+  return(0.47*(exp(-2.173+0.868 * log(stand$DBH^2 * stand$HEIGHT)+ 0.0939 / 2)) / 1000)
 }
 
+get.agb(trees.tab)

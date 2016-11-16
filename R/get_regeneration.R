@@ -42,8 +42,7 @@ get.regeneration <- function(stand, canopy.cover){
   regen.table$DBH <- rnorm(n = nrow(regen.table), mean = 5, sd = 1)
   regen.table$HEIGHT <- get.height(regen.table$DBH)
   regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
-  #regen.table$DBH <- regen.table$DBH + regen.table$DIAMETER.GROWTH #assign new diameter
-  regen.table$VOLUME <- get.volume(regen.table)
+  #regen.table$VOLUME <- get.volume(regen.table)
   regen.table$AGB <- get.agb(regen.table)
   regen.table$UNDER.BOSQUETE <- FALSE
   regen.table$COORD.X <- runif(n = sum(regen.n), min = 0, max = 99)

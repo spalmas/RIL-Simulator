@@ -1,5 +1,7 @@
 ######################### loading packages
 library(ggplot2)
+library(grid)
+library(gridExtra)
 library(mgcv)
 library(shiny)
 library(truncnorm)
@@ -23,14 +25,14 @@ ui <- fluidPage(
            sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
     ),
     column(3,
-           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
+           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('High')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
            checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
            checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
            checkboxInput("enrich.bosquete", "Enrichment of bosquetes", value = TRUE)
     ),
     column(3,
-           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 80, value = 25, step = 1),
+           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 50, value = 20, step = 1),
            sliderInput(inputId = 'it', label = "Iterations (1-500)", min = 5, max = 500, value = 5, step = 10),
            fileInput('trees.tab', label = 'Tree Inventory')
     )
@@ -40,6 +42,8 @@ ui <- fluidPage(
                icon = icon('line-chart', class = NULL, lib = "font-awesome")),
   
   plotOutput(outputId = "agb.plot"),
+  
+  tableOutput(outputId = 'table.summary'),
   
   #Button to download results data.
   downloadButton(outputId = 'downloadData', label =  'Download')
@@ -76,12 +80,79 @@ server <- function(input, output) {
   #clicked. As a result, the graph does not appear until 
   #the user asks for it by clicking “Go”.
   output$agb.plot <- renderPlot({
-    g <- ggplot(rbind(table.results()), aes(x = YEAR, y = AGB/1000))
-    g + stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
-      stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
+    AGB.plot <- ggplot(table.results(), aes(x = YEAR, y = AGB)) + 
+      #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
+      #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
+      geom_smooth(span=0.2) +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
-      scale_fill_manual(values=line.colors, name = '')  #assigning colors to ribbons
+      scale_fill_manual(values=line.colors, name = '') +  #assigning colors to ribbons
+      xlab(paste ("Year")) +  # X Label
+      ylab(paste ("AGB (MgC)")) #Y Label
+    
+    BA.plot <- ggplot(table.results(), aes(x = YEAR, y = BA)) +
+      #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
+      #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
+      geom_smooth(span=0.2) +
+      ggplot_params() + #General graph Parameters. Found in Helpers.R
+      scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
+      scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
+      xlab(paste ("Year")) +  # X Label
+      ylab(paste ("Basal Area (m2)"))  #Y Label
+    
+    NET.SEQUESTERED.plot <- ggplot(table.results(), aes(x = YEAR, y = NET.SEQUESTERED)) +
+      geom_smooth(span=0.2) +
+      ggplot_params() + #General graph Parameters. Found in Helpers.R
+      scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
+      scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
+      xlab(paste ("Year")) +  # X Label
+      ylab(paste ("Sequestered (MgC)"))  #Y Label
+    
+    
+    INCOME.plot <- ggplot(table.results(), aes(x = YEAR, y = INCOME)) +
+      geom_point() +
+      #stat_ecdf() +
+      ggplot_params() + #General graph Parameters. Found in Helpers.R
+      scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
+      scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
+      xlab(paste ("Year")) +  # X Label
+      ylab(paste ("INCOME (MXN)"))  #Y Label
+    
+    
+    
+    multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, INCOME.plot, cols=2)
+    
+  })
+  
+  #Summary of results 
+
+  
+  output$table.summary <- renderTable({
+    table.summary <- matrix(data = c( paste0(round(mean(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')'),
+                                      
+                                      paste0(round(mean(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')')),
+                            ncol = 2)
+    table.summary <- as.data.frame(table.summary)
+    rownames(table.summary) <- c('Trees harvested',
+                                 'Volume Harvested (m3)',
+                                 'AGB in Forest',
+                                 'Carbon Emissions',
+                                 'Emissions per m3 harvested',
+                                 'Income')
+    colnames(table.summary) <- c('Scenario', 'BAU')
+    
+    #Emissions per m3 harvested
+    table.summary
   })
   
   #---------------DOWNLOAD TABLE OF RESULTS----------------
