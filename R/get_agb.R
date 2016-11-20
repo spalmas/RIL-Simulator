@@ -17,5 +17,3 @@
 get.agb <- function(stand){
   return(0.47*(exp(-2.173+0.868 * log(stand$DBH^2 * stand$HEIGHT)+ 0.0939 / 2)) / 1000)
 }
-
-get.agb(trees.tab)

@@ -15,21 +15,16 @@
 #' @return an array of boolean values: TRUE: the tree is inside the rectangle and FALSE if not.
 #'
 #' @examples
-#' sy <- 25
-#' it <- 5    #General simulation parameters
-#' rotation <- 20
-#' intensity <- 'Normal'
-#' enrich.bosquete <- TRUE
-#' w.dist <- 5
-#' dir.felling <- TRUE
-#' improved.trail <- TRUE
-#' lower.impact <- TRUE
+#' source('startup.R')
 #' stand <- stand.randomizer()
+#' intensity <- 'Normal'
+#' rotation <- 20
 #' y <- 20
-#' harvested <- get.harvest(stand, intensity, y, rotation)
-#' inside <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
-#' inside
-#' killed.trees <- stand[(inside & stand$DBH < 15),]
+#' w.dist <- 5
+#' harvested <- get.harvest(stand, intensity)
+#' inside.small <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
+#' inside.small
+#' killed.trees <- stand[inside.small,]
 
 
 winching.mortality <- function(stand, w.dist, harvested){
@@ -53,8 +48,12 @@ winching.mortality <- function(stand, w.dist, harvested){
       #in.out from mgcv package
       inside <- inside | in.out(bnd = rectangle, x = matrix(data = c(stand$COORD.X, stand$COORD.Y), ncol = 2))
     }
+  
+  #only cutting those that are inside the rctantgle and are small trees  
+  inside.small <- inside & (stand$DBH < 15)
+    
   }
 
   #remove trees that were inside rectangles
-  return(inside)
+  return(inside.small)
 }

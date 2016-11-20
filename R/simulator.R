@@ -108,7 +108,7 @@ simulator <- function(scenario = 'A',
       ####### THINGS HAPPENING IF THIS A HARVESTING YEAR IN THE ROTATION
       if (y%%rotation == 0 | y == 0){
         ####### HARVESTING TREES
-        harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
+        harvested <- get.harvest(stand = stand, intensity = intensity) #harvesting the stand and store harvested trees
         harvested$VOLUME <- get.volume(harvested)     #Get total volume harvested
         harvested$PRICE <- get.price(harvested)       #Assigning price to each tree
         stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
@@ -124,8 +124,8 @@ simulator <- function(scenario = 'A',
         AGB.sequestered <- sum(enrichment.table$AGB, AGB.sequestered, na.rm = TRUE) #Adding the small sequestered biomass
         
         ####### DO WINCHING MORTALITY AND EMISSIONS COUNTING
-        inside <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
-        winching.dead <- stand[(inside & stand$DBH < 15),] #kills inside area and small trees (is 15cm OK?)
+        inside.small <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
+        winching.dead <- stand[inside.small,] #kills inside area and small trees (is 15cm OK?)
         emissions.winching <- sum(winching.dead$AGB, na.rm = TRUE) #Winching mortality emissions
         stand <- stand[!(inside & stand$DBH < 15),]  #keeping trees that are outside of the mortality rectangle and are bigger than 15 cm in DBH
       }

@@ -18,9 +18,9 @@
 #' enrich.bosquete <- TRUE
 #' w.dist <- 5
 #' stand <- stand.randomizer()
-#' harvested <- get.harvest(stand, intensity, y, rotation)
+#' harvested <- get.harvest(stand, intensity)
 #' do.enrichment(enrich.bosquete = TRUE, harvested = harvested)
-#' 
+#'y 
 do.enrichment <- function(enrich.bosquete, harvested){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
@@ -44,16 +44,22 @@ do.enrichment <- function(enrich.bosquete, harvested){
   #adding the columns as in the normal stand table
   enrich.table$DBH <- rnorm(n = nrow(enrich.table), mean = 1, sd = .15)
   enrich.table$DBH[enrich.table$DBH < 0.4] <- 1   #no diameters under .5 cm, changing to 1
-  enrich.table$HEIGHT <- get.height(enrich.table$DBH)
+  
+  #Estimating height
+  enrich.table$HEIGHT <- rnorm(n = nrow(enrich.table), mean = 1, sd = .15)
   enrich.table$HEIGHT[enrich.table$HEIGHT < 0.5] <- 0.5   #no heights under .5m, changing to 0.5m
+  
+  #no diameter growth
   enrich.table$DIAMETER.GROWTH <- rep(x = 0, times = n.seedlings) #no initial growth
-  #enrich.table$VOLUME <- get.volume(enrich.table)
+  
+  #adding biomass
   enrich.table$AGB <- get.agb(enrich.table)
+  
+  #boolean column if under bosquete. Perhaps a differetn grwoth for those trees
   enrich.table$UNDER.BOSQUETE <-  rep(x = TRUE, times = n.seedlings)
   
-  #localization of trees
-  #It should choose coordinates of one of the harvetsted trees and then plant all of the seedlings
-  #inside a radious from the point. For now is random to make simulator work
+  #adding coordinates to the trees. 
+  
   enrich.table$COORD.X <-  runif(n = n.seedlings, min = 0, max = 99)
   enrich.table$COORD.Y <-  runif(n = n.seedlings, min = 0, max = 99)
   #retunning a list of enrichment plants

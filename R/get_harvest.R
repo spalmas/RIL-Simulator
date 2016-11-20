@@ -1,4 +1,4 @@
-get.harvest <- function(stand, intensity, y, rotation){
+get.harvest <- function(stand, intensity){
   if (intensity == 'Normal'){    #harvesting the 50% largest trees
     
     #A table of the harvestable trees  

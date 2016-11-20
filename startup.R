@@ -3,6 +3,13 @@
 
 rm(list=ls()) #will remove ALL objects 
 
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(mgcv)
+library(shiny)
+library(truncnorm)
+
 source('R/do_enrichment.R')
 source('R/get_agb.R')
 source('R/get_diameter_growth.R')
@@ -14,6 +21,7 @@ source('R/ggplot_params.R')
 source('R/get_harvest.R')
 source('R/get_regeneration.R')
 source('R/mortality_calc.R')
+source('R/multiplot.R')
 source('R/stand_parameters_calc.R')
 source('R/stand_randomizer.R')
 source('R/winching_mortality.R')
