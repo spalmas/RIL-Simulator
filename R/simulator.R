@@ -25,29 +25,19 @@
 #'
 #' @examples
 #' source('startup.R')
-#' sy <- 15
-#' it <- 2
-#' rotation <- 10
-#' intensity <- 'Normal'
-#' enrich.bosquete <- TRUE
-#' w.dist <- 5
-#' dir.felling <- TRUE
-#' improved.trail <- TRUE
-#' lower.impact <- TRUE 
 #' trees.tab <- stand.randomizer()
-#' 
-#' table.results <- simulator(sy = sy, 
-#'     it = it,
-#'     rotation = rotation, 
-#'     intensity = intensity,
-#'     enrich.bosquete = enrich.bosquete, 
-#'     w.dist = w.dist, 
-#'     dir.felling  = dir.felling, 
-#'     improved.trail = improved.trail, 
-#'     lower.impact = lower.impact, 
+#' table.results <- simulator(sy = 15, 
+#'     it = 2,
+#'     rotation = 10, 
+#'     intensity = 'Normal',
+#'     enrich.bosquete = TRUE, 
+#'     w.dist = 10, 
+#'     dir.felling  = TRUE, 
+#'     improved.trail = TRUE, 
+#'     lower.impact = TRUE, 
 #'     trees.tab  = trees.tab)
-#'     
 #' View(table.results)
+#' 
 
 simulator <- function(scenario = 'A',
                       sy, 
@@ -103,7 +93,8 @@ simulator <- function(scenario = 'A',
       table.results[row.num, 'VOL.HARVESTED'] <- 0
       table.results[row.num, 'INCOME'] <- 0
       emissions.harvest <- 0
-      emissions.winching <- 0
+      emissions.skidding <- 0
+      emissions.directional <- 0
       
       ####### THINGS HAPPENING IF THIS A HARVESTING YEAR IN THE ROTATION
       if (y%%rotation == 0 | y == 0){
@@ -129,9 +120,13 @@ simulator <- function(scenario = 'A',
         emissions.skidding <- sum(skidding.dead$AGB, na.rm = TRUE) #Winching mortality emissions
         
         ####### DO DIRECTIONAL MORTALITY
-        directional.dead.bool <- directional.mortality(stand = stand, harvested = harvested)    #directinonal felling mortality
-        directional.dead <- stand[directional.dead.bool,] #kills from directional felling
-        emissions.directional <- sum(directional.dead$AGB, na.rm = TRUE) #Directional Felling emissions
+        emissions.directional <- 0
+        if (dir.felling){
+          directional.dead.bool <- directional.mortality(stand = stand, harvested = harvested)    #directinonal felling mortality
+          directional.dead <- stand[directional.dead.bool,] #kills from directional felling
+          emissions.directional <- sum(directional.dead$AGB, na.rm = TRUE) #Directional Felling emissions
+        }
+        
 
       }
       
@@ -142,7 +137,7 @@ simulator <- function(scenario = 'A',
       table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
       table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest  #Estimate biomass from the stand harvest
       table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding  #Emissions from winching
-      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.direcitonal  #Emissions from directional felling
+      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional  #Emissions from directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
       
     }  

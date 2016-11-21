@@ -35,6 +35,7 @@ skidding.mortality <- function(stand, w.dist, harvested){
   
   #cretes an empty array of FALSE with the length of the stand
   inside <- rep(x = c(FALSE), times = nrow(stand))
+  inside.small <- inside
   
   if (nrow(harvested) != 0){    #If there are trees harvested
     for (i in 1:nrow(harvested)){    #For each harvested tree

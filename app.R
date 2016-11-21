@@ -20,12 +20,12 @@ ui <- fluidPage(
   ),
   fluidRow(
     column(3,
-           textInput('scenario', "Scenario", value = 'A'),
-           sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 0, step = 1),
-           sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 0, step = 1)
+           textInput('scenario', "Scenario", value = 'RIL'),
+           sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 15, step = 1),
+           sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 10, step = 1)
     ),
     column(3,
-           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('High')),
+           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
            checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
            checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
@@ -41,12 +41,16 @@ ui <- fluidPage(
   actionButton(inputId = 'run', label = 'Run!', 
                icon = icon('line-chart', class = NULL, lib = "font-awesome")),
   
-  plotOutput(outputId = "agb.plot"),
-  
+  #Syummary Table of results
   tableOutput(outputId = 'table.summary'),
+
+  #Button to download results data. Should only work if soimulation is done. Downloads only scenario table.
+  downloadButton(outputId = 'downloadData', label =  'Download'),
   
-  #Button to download results data.
-  downloadButton(outputId = 'downloadData', label =  'Download')
+  #Plots
+  plotOutput(outputId = "plots")
+  
+  
 )
 
 server <- function(input, output) {
@@ -60,8 +64,8 @@ server <- function(input, output) {
   })
   
   
-  #---------------SIMULATOR----------------
-  table.results  <- eventReactive(input$run,{
+  #---------------SIMULATOR SCENARIO----------------
+  SCENARIO.results  <- eventReactive(input$run,{
     simulator(scenario = input$scenario,
               it = input$it,
               sy = input$sy,
@@ -75,12 +79,32 @@ server <- function(input, output) {
               trees.tab = trees.tab())
   })
   
+  #---------------SIMULATOR BAU----------------
+  BAU.results  <- eventReactive(input$run,{
+    simulator(scenario = 'BAU',
+              it = input$it,
+              sy = input$sy,
+              rotation = input$rotation,
+              intensity = 'High',
+              enrich.bosquete = FALSE,
+              w.dist = 0,
+              dir.felling = FALSE,
+              improved.trail = FALSE,
+              lower.impact = FALSE,
+              trees.tab = trees.tab())
+  })
+  
+  #---------------COMBINE RESULTS----------------
+
   #---------------OUTPUT FUNCIONS----------------
   #eventReactive() returns NULL until the action button is
   #clicked. As a result, the graph does not appear until 
   #the user asks for it by clicking “Go”.
-  output$agb.plot <- renderPlot({
-    AGB.plot <- ggplot(table.results(), aes(x = YEAR, y = AGB)) + 
+  output$plots <- renderPlot({
+    
+    results <- rbind(SCENARIO.results(), BAU.results())
+    
+    AGB.plot <- ggplot(results, aes(x = YEAR, y = AGB, colour = SCENARIO)) + 
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
       geom_smooth(span=0.2) +
@@ -88,9 +112,10 @@ server <- function(input, output) {
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '') +  #assigning colors to ribbons
       xlab(paste ("Year")) +  # X Label
-      ylab(paste ("AGB (MgC)")) #Y Label
+      ylab(paste ("MgC")) +  #Y Label
+      labs(title = 'AGB')
     
-    BA.plot <- ggplot(table.results(), aes(x = YEAR, y = BA)) +
+    BA.plot <- ggplot(results, aes(x = YEAR, y = BA, colour = SCENARIO)) +
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
       geom_smooth(span=0.2) +
@@ -98,49 +123,52 @@ server <- function(input, output) {
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
       xlab(paste ("Year")) +  # X Label
-      ylab(paste ("Basal Area (m2)"))  #Y Label
+      ylab(paste ("m2")) +  #Y Label
+      labs(title = 'Basal Area')
     
-    NET.SEQUESTERED.plot <- ggplot(table.results(), aes(x = YEAR, y = NET.SEQUESTERED)) +
+    NET.SEQUESTERED.plot <- ggplot(results, aes(x = YEAR, y = NET.SEQUESTERED, colour = SCENARIO)) +
       geom_smooth(span=0.2) +
+      #geom_smooth(data = BAU.results, )
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
       xlab(paste ("Year")) +  # X Label
-      ylab(paste ("Sequestered (MgC)"))  #Y Label
+      ylab(paste ("MgC")) +  #Y Label
+      labs(title = 'Sequestered Carbon')
     
-    
-    INCOME.plot <- ggplot(table.results(), aes(x = YEAR, y = INCOME)) +
+    INCOME.plot <- ggplot(results, aes(x = YEAR, y = INCOME, colour = SCENARIO)) +
       geom_point() +
       #stat_ecdf() +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
       xlab(paste ("Year")) +  # X Label
-      ylab(paste ("INCOME (MXN)"))  #Y Label
+      ylab(paste ("Thousands MXN")) +  #Y Label
+      labs(title = "Income")
     
     
     
     multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, INCOME.plot, cols=2)
     
-  })
+  }, width = 1000, height = 800)
   
   #Summary of results 
 
   
   output$table.summary <- renderTable({
-    table.summary <- matrix(data = c( paste0(round(mean(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')'),
+    table.summary <- matrix(data = c( paste0(round(mean(SCENARIO.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(SCENARIO.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$AGB, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(SCENARIO.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(SCENARIO.results()$EMISSIONS/SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$EMISSIONS/SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(SCENARIO.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$INCOME, na.rm = TRUE), digits = 1), ')'),
                                       
-                                      paste0(round(mean(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')')),
+                                      paste0(round(mean(BAU.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(BAU.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$AGB, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(BAU.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(BAU.results()$EMISSIONS/BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$EMISSIONS/BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(BAU.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$INCOME, na.rm = TRUE), digits = 1), ')')),
                             ncol = 2)
     table.summary <- as.data.frame(table.summary)
     rownames(table.summary) <- c('Trees harvested',
@@ -148,7 +176,7 @@ server <- function(input, output) {
                                  'AGB in Forest',
                                  'Carbon Emissions',
                                  'Emissions per m3 harvested',
-                                 'Income')
+                                 'Income (1000 MXN)')
     colnames(table.summary) <- c('Scenario', 'BAU')
     
     #Emissions per m3 harvested
