@@ -123,11 +123,16 @@ simulator <- function(scenario = 'A',
         stand <- rbind(stand, enrichment.table)  #adding the new trees to the stand
         AGB.sequestered <- sum(enrichment.table$AGB, AGB.sequestered, na.rm = TRUE) #Adding the small sequestered biomass
         
-        ####### DO WINCHING MORTALITY AND EMISSIONS COUNTING
-        inside.small <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
-        winching.dead <- stand[inside.small,] #kills inside area and small trees (is 15cm OK?)
-        emissions.winching <- sum(winching.dead$AGB, na.rm = TRUE) #Winching mortality emissions
-        stand <- stand[!(inside & stand$DBH < 15),]  #keeping trees that are outside of the mortality rectangle and are bigger than 15 cm in DBH
+        ####### DO SKIDDING MORTALITY
+        skidding.dead.bool <- skidding.mortality(stand = stand, w.dist = w.dist, harvested = harvested)  #skidding mortality
+        skidding.dead <- stand[skidding.dead.bool,] #kills inside area and small trees (is 15cm OK?)
+        emissions.skidding <- sum(skidding.dead$AGB, na.rm = TRUE) #Winching mortality emissions
+        
+        ####### DO DIRECTIONAL MORTALITY
+        directional.dead.bool <- directional.mortality(stand = stand, harvested = harvested)    #directinonal felling mortality
+        directional.dead <- stand[directional.dead.bool,] #kills from directional felling
+        emissions.directional <- sum(directional.dead$AGB, na.rm = TRUE) #Directional Felling emissions
+
       }
       
       #Storing stand results 
@@ -136,14 +141,15 @@ simulator <- function(scenario = 'A',
       table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
       table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
       table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest  #Estimate biomass from the stand harvest
-      table.results[row.num,'EMISSIONS.WINCHING'] <- emissions.winching  #Emissions from winching
+      table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding  #Emissions from winching
+      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.direcitonal  #Emissions from directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
       
     }  
   }
   
   #Estimate the total Emissions for each year
-  table.results['EMISSIONS'] <- table.results$EMISSIONS.HARVEST + table.results$EMISSIONS.WINCHING
+  table.results['EMISSIONS'] <- table.results$EMISSIONS.HARVEST + table.results$EMISSIONS.SKIDDING  + table.results$EMISSIONS.DIRECTIONAL
   table.results['NET.SEQUESTERED'] <- table.results$SEQUESTERED - table.results$EMISSIONS #Estimate sequestered biomass from the stand
   
   #Return table of results

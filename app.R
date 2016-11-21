@@ -132,14 +132,14 @@ server <- function(input, output) {
                                       paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')'),
                                       
                                       paste0(round(mean(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$AGB, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
+                                      paste0(round(mean(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$EMISSIONS/table.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
                                       paste0(round(mean(table.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(table.results()$INCOME, na.rm = TRUE), digits = 1), ')')),
                             ncol = 2)
     table.summary <- as.data.frame(table.summary)

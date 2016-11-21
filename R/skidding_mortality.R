@@ -1,4 +1,4 @@
-#' Winching mortality 
+#' Skidding mortality 
 #'
 #' The functions finds which trees are inside a rectangle from the position of the harvested tree
 #' to the trail. It creates a rectangle 6m wide from the trail to the harvested tree and it returns
@@ -22,12 +22,12 @@
 #' y <- 20
 #' w.dist <- 5
 #' harvested <- get.harvest(stand, intensity)
-#' inside.small <- winching.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
+#' inside.small <- skidding.mortality(stand = stand, w.dist = w.dist, harvested = harvested)
 #' inside.small
 #' killed.trees <- stand[inside.small,]
 
 
-winching.mortality <- function(stand, w.dist, harvested){
+skidding.mortality <- function(stand, w.dist, harvested){
   #y =20
   
   #harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
