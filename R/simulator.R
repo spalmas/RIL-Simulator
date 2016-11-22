@@ -89,12 +89,12 @@ simulator <- function(scenario = 'A',
       AGB0 <- AGB1  #Updating value      
       
       ####### DEFAULT VALUES FOR SOME VARIABLES. WILL NOT CHANGE IF THIS IS NOT A HARVESTING YEAR IN THE ROTATION.
-      table.results[row.num, 'N.HARVESTED'] <- 0
-      table.results[row.num, 'VOL.HARVESTED'] <- 0
-      table.results[row.num, 'INCOME'] <- 0
-      emissions.harvest <- 0
-      emissions.skidding <- 0
-      emissions.directional <- 0
+      table.results[row.num, 'N.HARVESTED'] <- NA
+      table.results[row.num, 'VOL.HARVESTED'] <- NA
+      table.results[row.num, 'INCOME'] <- NA
+      emissions.harvest <- NA
+      emissions.skidding <- NA
+      emissions.directional <- NA
       
       ####### THINGS HAPPENING IF THIS A HARVESTING YEAR IN THE ROTATION
       if (y%%rotation == 0 | y == 0){
@@ -135,9 +135,9 @@ simulator <- function(scenario = 'A',
       table.results[row.num,'YEAR'] <- y   #Adding year to table
       table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
       table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
-      table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest  #Estimate biomass from the stand harvest
-      table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding  #Emissions from winching
-      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional  #Emissions from directional felling
+      table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest*-1  #Estimate biomass from the stand harvest
+      table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding*-1  #Emissions from winching
+      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
       
     }  
@@ -145,7 +145,8 @@ simulator <- function(scenario = 'A',
   
   #Estimate the total Emissions for each year
   table.results['EMISSIONS'] <- table.results$EMISSIONS.HARVEST + table.results$EMISSIONS.SKIDDING  + table.results$EMISSIONS.DIRECTIONAL
-  table.results['NET.SEQUESTERED'] <- table.results$SEQUESTERED - table.results$EMISSIONS #Estimate sequestered biomass from the stand
+  table.results['EMISSIONSperm3'] <- table.results$EMISSIONS / table.results$VOL.HARVESTED
+  table.results['NET.SEQUESTERED'] <- rowSums(cbind(table.results$SEQUESTERED, table.results$EMISSIONS), na.rm = TRUE) #Estimate sequestered biomass from the stand
   
   #Return table of results
   return(table.results)

@@ -43,7 +43,7 @@ ui <- fluidPage(
   
   #Syummary Table of results
   tableOutput(outputId = 'table.summary'),
-
+  
   #Button to download results data. Should only work if soimulation is done. Downloads only scenario table.
   downloadButton(outputId = 'downloadData', label =  'Download'),
   
@@ -95,7 +95,7 @@ server <- function(input, output) {
   })
   
   #---------------COMBINE RESULTS----------------
-
+  
   #---------------OUTPUT FUNCIONS----------------
   #eventReactive() returns NULL until the action button is
   #clicked. As a result, the graph does not appear until 
@@ -153,29 +153,27 @@ server <- function(input, output) {
   }, width = 1000, height = 800)
   
   #Summary of results 
-
+  
   
   output$table.summary <- renderTable({
-    table.summary <- matrix(data = c( paste0(round(mean(SCENARIO.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(SCENARIO.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$AGB, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(SCENARIO.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(SCENARIO.results()$EMISSIONS/SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$EMISSIONS/SCENARIO.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(SCENARIO.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(SCENARIO.results()$INCOME, na.rm = TRUE), digits = 1), ')'),
+    table.summary <- matrix(data = c( mean.sd(results.column = 'N.HARVESTED', data = SCENARIO.results()),
+                                      mean.sd(results.column = 'VOL.HARVESTED', data = SCENARIO.results()),                                   
+                                      mean.sd(results.column = 'EMISSIONS', data = SCENARIO.results()),                                     
+                                      mean.sd(results.column = 'EMISSIONSperm3', data = SCENARIO.results()),                                     
+                                      mean.sd(results.column = 'INCOME', data = SCENARIO.results()),                                    
                                       
-                                      paste0(round(mean(BAU.results()$N.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$N.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$VOLUME, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(BAU.results()$AGB, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$AGB, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(BAU.results()$EMISSIONS, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$EMISSIONS, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(BAU.results()$EMISSIONS/BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$EMISSIONS/BAU.results()$VOL.HARVESTED, na.rm = TRUE), digits = 1), ')'),
-                                      paste0(round(mean(BAU.results()$INCOME, na.rm = TRUE), digits = 1),' (', round(sd(BAU.results()$INCOME, na.rm = TRUE), digits = 1), ')')),
-                            ncol = 2)
+                                      mean.sd(results.column = 'N.HARVESTED', data = BAU.results()),
+                                      mean.sd(results.column = 'VOL.HARVESTED', data = BAU.results()),
+                                      mean.sd(results.column = 'EMISSIONS', data = BAU.results()),
+                                      mean.sd(results.column = 'EMISSIONSperm3', data = BAU.results()),
+                                      mean.sd(results.column = 'INCOME', data = BAU.results())
+                                      ),
+    ncol = 2)
     table.summary <- as.data.frame(table.summary)
-    rownames(table.summary) <- c('Trees harvested',
-                                 'Volume Harvested (m3)',
-                                 'AGB in Forest',
-                                 'Carbon Emissions',
-                                 'Emissions per m3 harvested',
+    rownames(table.summary) <- c('Trees harvested / ha (All years)',
+                                 'm3 Harvested / ha (All years)',
+                                 'MgC Emissions from harvest (All years)',
+                                 'MgC Emissions per m3 harvested (All years)',
                                  'Income (1000 MXN)')
     colnames(table.summary) <- c('Scenario', 'BAU')
     
@@ -195,16 +193,16 @@ server <- function(input, output) {
     content = function(file) {
       # Write to a file specified by the 'file' argument
       write.csv(x = table.results(), file = file,
-                  row.names = FALSE)
+                row.names = FALSE)
     }
   )
   #output$BA <- renderText({standcalc(trees.tab())})
-    
+  
   #output$filetable <- renderTable({
   #  #trees.tab()
   #  table.results()
   #})
-
+  
 }
 
 shinyApp(ui = ui, server = server)
