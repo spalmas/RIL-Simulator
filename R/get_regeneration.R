@@ -25,7 +25,7 @@ get.regeneration <- function(stand, canopy.cover){
                        sd = regen.params.subset$REG.N.HA.SD)
   
   #There is no negative recruitment
-  regen.n[regen.n <0] <- 1  #at least one tree regenerated
+  regen.n[regen.n < 0] <- 1  #at least one tree regenerated
   
   #Convert number of recruits in integers
   regen.n <- round(regen.n)
@@ -40,7 +40,9 @@ get.regeneration <- function(stand, canopy.cover){
   
   #adding the columns as in the normal stand table
   regen.table$DBH <- rnorm(n = nrow(regen.table), mean = 5, sd = 1)
+  regen.table$DBH[regen.table$DBH < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution
   regen.table$HEIGHT <- get.height(regen.table$DBH)
+  regen.table$HEIGHT[regen.table$HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution
   regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
   #regen.table$VOLUME <- get.volume(regen.table)
   regen.table$AGB <- get.agb(regen.table)

@@ -136,7 +136,7 @@ server <- function(input, output) {
       ylab(paste ("MgC")) +  #Y Label
       labs(title = 'Sequestered Carbon')
     
-    INCOME.plot <- ggplot(results, aes(x = YEAR, y = INCOME, colour = SCENARIO)) +
+    INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = YEAR, y = INCOME, colour = SCENARIO)) +
       geom_point() +
       #stat_ecdf() +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
@@ -153,8 +153,7 @@ server <- function(input, output) {
   }, width = 1000, height = 800)
   
   #Summary of results 
-  
-  
+
   output$table.summary <- renderTable({
     table.summary <- matrix(data = c( mean.sd(results.column = 'N.HARVESTED', data = SCENARIO.results()),
                                       mean.sd(results.column = 'VOL.HARVESTED', data = SCENARIO.results()),                                   

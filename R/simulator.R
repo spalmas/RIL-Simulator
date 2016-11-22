@@ -81,9 +81,9 @@ simulator <- function(scenario = 'A',
       if (y%%4 == 0){
         regen.table <- get.regeneration (stand, canopy.cover = 999)   #Regeration process
         stand <- rbind(stand, regen.table)  #adding the new trees to the stand
-      }
+      }      
       
-      ####### BIOMASS 
+      ####### BIOMASS (IS AFTER NATURAL PROCESSES AND BEFORE HARVEST)
       stand$AGB <- get.agb(stand)
       AGB.sequestered <- sum(stand$AGB, na.rm = TRUE) - AGB0  #Sequestred value
       AGB0 <- AGB1  #Updating value      
@@ -96,7 +96,7 @@ simulator <- function(scenario = 'A',
       emissions.skidding <- NA
       emissions.directional <- NA
       
-      ####### THINGS HAPPENING IF THIS A HARVESTING YEAR IN THE ROTATION
+      ####### THINGS HAPPENING IN A HARVESTING YEAR IN THE ROTATION
       if (y%%rotation == 0 | y == 0){
         ####### HARVESTING TREES
         harvested <- get.harvest(stand = stand, intensity = intensity) #harvesting the stand and store harvested trees
@@ -129,12 +129,12 @@ simulator <- function(scenario = 'A',
         
 
       }
-      
+
       #Storing stand results 
       table.results[row.num,'IT'] <- i   #Adding iteration to table
       table.results[row.num,'YEAR'] <- y   #Adding year to table
-      table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate biomass from the stand (it uses Chave 2014, see helpers.R). Transform to square meters
-      table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand
+      table.results[row.num,'BA'] <- sum(pi * (stand$DBH/100/2)^2, na.rm = TRUE)  #Estimate Basal Area from the stand  Transform to square meters
+      table.results[row.num,'AGB'] <- sum(stand$AGB, na.rm = TRUE)  #Estimate biomass from the stand at end of year
       table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest*-1  #Estimate biomass from the stand harvest
       table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding*-1  #Emissions from winching
       table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from directional felling

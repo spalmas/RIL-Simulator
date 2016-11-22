@@ -1,41 +1,51 @@
-# source('helpers.R')
-# 
-# stand <- stand.randomizer()
-# diameter.eqs <- read.csv('Data/diameter_growth.csv')
-# stand <- assigning_diameter_params(stand, diameter.eqs)
-# stand$DIAMETER.GROWTH <- diameter.growth(stand)
-# 
-# 
-# 
-# rnorm(1, stand$DBH.GROWTH.MEAN[1], stand$DBH.GROWTH.SD[1])
+source('startup.R')
 
-# 
-# dbinom(x =nrow(harvested), size = 1, prob = .50)
-# intensity <- 'High'
-# 
-# euc.dist <- function(x1, y1, x2, y2){
-#   return(sqrt((x2-x1)^2 + (y2-y1)^2))
-# }
-# 
-# distance  <- function(harvested){
-#   pairs <- combn(1:nrow(harvested), m= 2)
-#   distance.list <- rep(NA, ncol(pairs))
-#   for (i in 1:ncol(pairs)){
-#     #calculating euclidean distnace
-#     distance <- euc.dist(x1 = harvested$COORD.X[pairs[1,i]],
-#                          y1 = harvested$COORD.Y[pairs[1,i]],
-#                          x2 = harvested$COORD.X[pairs[2,i]],
-#                          y2 = harvested$COORD.Y[pairs[2,i]])
-#     
-#     distance.list[i] <- distance  #adding distance to list
-#   }
-# 
-#   distance.list <- cbind(t(pairs), distance.list)[order(distance.list),]
-#   return(distance.list)
-# }
-# 
-# rotation = 5   #rotation period
-# y = 0  #current year
-# sy%%rotation == 0
-# 
-# distance (harvested)
+scenario = 'A'
+sy = 25
+it = 5    #General simulation parameters
+rotation = 20
+intensity = 'Normal'
+enrich.bosquete = TRUE
+w.dist = 5
+dir.felling  =TRUE
+improved.trail = TRUE
+lower.impact = TRUE  #Harvesting scenario
+trees.tab <- stand.randomizer()
+get.agb(trees.tab)
+
+DBH <- rnorm(n = 1000, mean = 1, sd = .15)
+get.height(DBH)
+
+table.results <- simulator(scenario = scenario, 
+          sy = sy, 
+          it = it,    #General simulation parameters
+          rotation = rotation, 
+          intensity = intensity,
+          enrich.bosquete = enrich.bosquete, 
+          w.dist = w.dist, 
+          dir.felling  = dir.felling,
+          improved.trail = improved.trail,
+          lower.impact = lower.impact,  #Harvesting scenario
+          trees.tab  = trees.tab)
+
+
+
+rowSums(cbind(table.results$EMISSIONS.DIRECTIONAL, table.results$EMISSIONS.HARVEST, table.results$EMISSIONS.SKIDDING), na.rm = TRUE)
+#geom_ribbon(aes(ymin = AGB/1000 - 2, ymax = AGB/1000 + 2), fill = "grey70") +
+
+
+sum(get.volume(NULL), na.rm = TRUE)
+
+
+
+harvested$VOLUME <- get.volume(harvested)
+get.price(harvested)
+
+
+head(regen.table)
+regen.table = get.regeneration(trees.tab, canopy.cover = 999)
+rbind(stand, regen.table)  #adding the new trees to the stand
+
+head(trees.tab)
+head(regen.table)
+

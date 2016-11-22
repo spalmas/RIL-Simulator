@@ -11,7 +11,9 @@
 #' @examples
 #' source('startup.R')
 #' stand <- stand.randomizer()
-#' stand <- get.regeneration(stand)
+#' stand$AGB <- get.agb(stand) 
+#' stand$DIAMETER.GROWTH <- 0
+#' stand <- rbind(stand, get.regeneration(stand))
 #' get.agb(stand)
 
 get.agb <- function(stand){
