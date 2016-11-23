@@ -1,4 +1,4 @@
-######################### loading packages
+#---------------Importing packages----------------
 library(ggplot2)
 library(grid)
 library(gridExtra)
@@ -6,11 +6,14 @@ library(mgcv)
 library(shiny)
 library(truncnorm)
 
-#########################Importing source files
+#---------------Importing source files----------------
+
 file.sources = list.files(path = 'R/', pattern="*.R")
 sapply(paste0('R/',file.sources), source, .GlobalEnv)
-#source('R/simulator.R')
 
+regen.params <- read.csv('data/regenation_params.csv', sep = ',')
+
+#---------------UI----------------
 ui <- fluidPage(
   titlePanel("RIL Simulator"),
   #This is a RIL Simulator with parameters from the Yucatan Peninsula
@@ -53,6 +56,7 @@ ui <- fluidPage(
   
 )
 
+#---------------SERVER----------------
 server <- function(input, output) {
   #trees tab information
   trees.tab <- eventReactive(eventExpr = input$run,{

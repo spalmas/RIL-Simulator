@@ -4,9 +4,6 @@
 #in one hectare by species and depending in the percentage of canopy level.
 #canopy level 999 is the mean for all canopy covers. This could be used if there
 #is no knowledge on the canopy cover
-regen.params <- read.csv('data/regenation_params.csv', sep = ',')
-
-
 get.regeneration <- function(stand, canopy.cover){
   #subset data to only that canopy cover
   canopy.cover  <- 999
