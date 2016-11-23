@@ -20,7 +20,7 @@ ui <- fluidPage(
   ),
   fluidRow(
     column(3,
-           textInput('scenario', "Scenario", value = 'RIL'),
+           textInput('scenario', "Scenario name", value = 'RIL'),
            sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 15, step = 1),
            sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 10, step = 1)
     ),
@@ -32,7 +32,7 @@ ui <- fluidPage(
            checkboxInput("enrich.bosquete", "Enrichment of bosquetes", value = TRUE)
     ),
     column(3,
-           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 50, value = 20, step = 1),
+           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 50, value = 35, step = 1),
            sliderInput(inputId = 'it', label = "Iterations (1-500)", min = 5, max = 500, value = 5, step = 10),
            fileInput('trees.tab', label = 'Tree Inventory')
     )
@@ -137,7 +137,7 @@ server <- function(input, output) {
       labs(title = 'Sequestered Carbon')
     
     INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = YEAR, y = INCOME, colour = SCENARIO)) +
-      geom_point() +
+      geom_boxplot() +
       #stat_ecdf() +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
