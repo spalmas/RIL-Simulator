@@ -1,4 +1,4 @@
-#---------------Importing packages----------------
+#---------------IMPORTING PACKAGES----------------
 library(ggplot2)
 library(grid)
 library(gridExtra)
@@ -6,7 +6,7 @@ library(mgcv)
 library(shiny)
 library(truncnorm)
 
-#---------------Importing source files----------------
+#---------------IMPORTING SOURCE FILES----------------
 
 file.sources = list.files(path = 'R/', pattern="*.R")
 sapply(paste0('R/',file.sources), source, .GlobalEnv)
@@ -30,13 +30,13 @@ ui <- fluidPage(
     column(3,
            selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
-           checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
-           checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
+           #checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
+           #checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
            checkboxInput("enrich.bosquete", "Enrichment of bosquetes", value = TRUE)
     ),
     column(3,
-           sliderInput(inputId = 'sy', label = "Simulation Years (1-75)", min = 5, max = 50, value = 35, step = 1),
-           sliderInput(inputId = 'it', label = "Iterations (1-500)", min = 5, max = 500, value = 5, step = 10),
+           sliderInput(inputId = 'sy', label = "Simulation Years", min = 5, max = 50, value = 35, step = 1),
+           sliderInput(inputId = 'it', label = "Iterations", min = 5, max = 500, value = 5, step = 10),
            fileInput('trees.tab', label = 'Tree Inventory')
     )
   ),
@@ -98,9 +98,8 @@ server <- function(input, output) {
               trees.tab = trees.tab())
   })
   
-  #---------------COMBINE RESULTS----------------
-  
-  #---------------OUTPUT FUNCIONS----------------
+
+  #---------------OUTPUT PLOTS----------------
   #eventReactive() returns NULL until the action button is
   #clicked. As a result, the graph does not appear until 
   #the user asks for it by clicking “Go”.
@@ -111,7 +110,7 @@ server <- function(input, output) {
     AGB.plot <- ggplot(results, aes(x = YEAR, y = AGB, colour = SCENARIO)) + 
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
-      geom_smooth(span=0.2) +
+      geom_smooth(span=0.2, aes(fill=SCENARIO)) +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '') +  #assigning colors to ribbons
@@ -122,7 +121,7 @@ server <- function(input, output) {
     BA.plot <- ggplot(results, aes(x = YEAR, y = BA, colour = SCENARIO)) +
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
-      geom_smooth(span=0.2) +
+      geom_smooth(span=0.2, aes(fill=SCENARIO)) +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
@@ -131,8 +130,7 @@ server <- function(input, output) {
       labs(title = 'Basal Area')
     
     NET.SEQUESTERED.plot <- ggplot(results, aes(x = YEAR, y = NET.SEQUESTERED, colour = SCENARIO)) +
-      geom_smooth(span=0.2) +
-      #geom_smooth(data = BAU.results, )
+      geom_smooth(span=0.2, aes(fill=SCENARIO)) +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
       scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
       scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
@@ -140,7 +138,7 @@ server <- function(input, output) {
       ylab(paste ("MgC")) +  #Y Label
       labs(title = 'Sequestered Carbon')
     
-    INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = YEAR, y = INCOME, colour = SCENARIO)) +
+    INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = factor(YEAR), y = INCOME, colour = SCENARIO)) +
       geom_boxplot() +
       #stat_ecdf() +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
@@ -149,9 +147,7 @@ server <- function(input, output) {
       xlab(paste ("Year")) +  # X Label
       ylab(paste ("Thousands MXN")) +  #Y Label
       labs(title = "Income")
-    
-    
-    
+
     multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, INCOME.plot, cols=2)
     
   }, width = 1000, height = 800)
@@ -199,13 +195,9 @@ server <- function(input, output) {
                 row.names = FALSE)
     }
   )
-  #output$BA <- renderText({standcalc(trees.tab())})
-  
-  #output$filetable <- renderTable({
-  #  #trees.tab()
-  #  table.results()
-  #})
-  
+
 }
+
+#---------------SHINY APP DEFINITION----------------
 
 shinyApp(ui = ui, server = server)
