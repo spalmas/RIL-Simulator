@@ -3,6 +3,7 @@ library(ggplot2)   #For plotting
 library(grid)      #For making multiplots
 library(gridExtra) #For making multiplots 
 library(mgcv)
+library(reshape2)
 library(shiny)     #For app 
 library(truncnorm) #Truncated normal distribution package for ,,,
 

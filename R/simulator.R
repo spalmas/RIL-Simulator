@@ -146,6 +146,7 @@ simulator <- function(scenario = 'A',
       table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding*-1  #Emissions from winching
       table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
+      #table.results[row.num,'HURRICANE'] <- hurricane.dead  #Add if this was a hurricane year
       
     }  
   }
