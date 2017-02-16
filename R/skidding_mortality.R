@@ -1,7 +1,7 @@
 #' Skidding mortality 
 #'
 #' The functions finds which trees are inside a rectangle from the position of the harvested tree
-#' to the trail. It creates a rectangle 6m wide from the trail to the harvested tree and it returns
+#' to the trail. It creates a rectangle 2m wide from the trail to the harvested tree and it returns
 #' an array of boolean values: TRUE: the tree is inside the rectangle and FALSE if not. 
 #' The winching distance avoids nmortality within that distance from the harvested tree.
 #'
@@ -40,10 +40,10 @@ skidding.mortality <- function(stand, w.dist, harvested){
   if (nrow(harvested) != 0){    #If there are trees harvested
     for (i in 1:nrow(harvested)){    #For each harvested tree
       #Creates a buffer rectangle from the tree to the road.
-      rectangle <- matrix(c(harvested$COORD.X[i]+3, harvested$COORD.Y[i] - w.dist,
-                            harvested$COORD.X[i]-3, 0,
-                            harvested$COORD.X[i]+3, 0,
-                            harvested$COORD.X[i]-3, harvested$COORD.Y[i] - w.dist),
+      rectangle <- matrix(c(harvested$COORD.X[i]+1, harvested$COORD.Y[i] - w.dist,
+                            harvested$COORD.X[i]-1, 0,
+                            harvested$COORD.X[i]+1, 0,
+                            harvested$COORD.X[i]-1, harvested$COORD.Y[i] - w.dist),
                           ncol = 2, byrow = TRUE)
       #Check if some trees are inside the rectangle and add them to the total list of trees that will be killed
       #in.out from mgcv package

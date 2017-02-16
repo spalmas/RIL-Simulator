@@ -60,18 +60,25 @@ simulator <- function(scenario = 'A',
   
   #LOOP OF SIMULATION YEARS AND ITERATIONS-----------
   for (i in 1:it){   #For each iteration
+    #i=1
     stand <- trees.tab  #return to initial stand
     AGB0 <- sum(get.agb(stand), na.rm = TRUE)  #First AGB estimate
     AGB1 <- AGB0  #The first year the sequestration is 0
     
     for (y in 1:sy){   #For each simulation year
+      #y=1
       row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year for table of results
 
-      ####### #MORTALITY
-      stand.after.mortality <- mortality.calc(stand)
-      stand <- stand.after.mortality[[1]]
-      stand.dead <- stand.after.mortality[[2]]
+      ######## NATURAL MORTALITY AND HURRICANES
+      natural.dead <- mortality.calc(stand)    #T/F list if they died of natural causes
+      stand.dead <- stand[natural.dead,]      #creating a dead list
+      stand <- stand[!natural.dead,]          #removing dead from alive stand
       
+      hurricane.dead <- hurricane.mortality(stand)        #T/F list if they died from a hurricane
+      stand.dead <- rbind(stand.dead, stand[hurricane.dead,])     #Adding dead trees to dead  list
+      stand <- stand[!hurricane.dead,]          #removing dead from alive stand
+      
+
       ####### GROWTH FUNCTIONS
       stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
       stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter

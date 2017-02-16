@@ -1,10 +1,10 @@
 #---------------IMPORTING PACKAGES----------------
-library(ggplot2)
-library(grid)
-library(gridExtra)
+library(ggplot2)   #For plotting
+library(grid)      #For making multiplots
+library(gridExtra) #For making multiplots 
 library(mgcv)
-library(shiny)
-library(truncnorm)
+library(shiny)     #For app 
+library(truncnorm) #Truncated normal distribution package for ,,,
 
 #---------------IMPORTING SOURCE FILES----------------
 

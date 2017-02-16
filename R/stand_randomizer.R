@@ -1,4 +1,17 @@
-# Function to randomize initial stand list
+#' STAND RANDOMIZED
+#'
+#' Creates a simulated one hectare stand based on probabilities 
+#'
+#' @param stand The table of trees in the stand
+#'
+#' @references
+#' 
+#' @return dataframe with SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X AND COORD.Y
+#'
+#' @examples
+#' source('startup.R')
+#' stand <- stand.randomizer()
+#' head(stand)
 stand.randomizer <- function(){
   n.trees <- rpois(n = 1, lambda = 70)     #Random number of trees
   species.options <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
