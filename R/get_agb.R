@@ -2,7 +2,7 @@
 #'
 #' Gets the AGB for a table of trees
 #'
-#' @param stand: table of trees with columns of DBH and HEIGHT 
+#' @param forest: table of trees with columns of DBH and HEIGHT 
 #'
 #' @references  Cairns paper
 #' 
@@ -16,6 +16,9 @@
 #' stand <- rbind(stand, get.regeneration(stand))
 #' get.agb(stand)
 
-get.agb <- function(stand){
-  return(0.47*(exp(-2.173+0.868 * log(stand$DBH^2 * stand$HEIGHT)+ 0.0939 / 2)) / 1000)
+get.agb <- function(forest = NULL, DBH = NA, HEIGHT = NA){
+  if (is.null(forest)){
+    return(0.47*(exp(-2.173+0.868 * log(DBH^2 * HEIGHT)+ 0.0939 / 2)) / 1000)
+  }
+  return(0.47*(exp(-2.173+0.868 * log(forest$DBH^2 * forest$HEIGHT)+ 0.0939 / 2)) / 1000)
 }

@@ -28,23 +28,23 @@
 #' killed.trees <- stand[killed.directional,]
 
 
-directional.mortality <- function(stand, harvested){
-  vecinity <- rep(x = c(FALSE), times = nrow(stand))
+directional.mortality <- function(forest, harvested){
+  vecinity <- rep(x = c(FALSE), times = nrow(forest))
   
   if (nrow(harvested) != 0){    #If there are trees harvested
     for (i in 1:nrow(harvested)){    #For each harvested tree
-      vecinity.i <- rep(x = c(FALSE), times = nrow(stand))
-      for (t in 1:nrow(stand)){
+      vecinity.i <- rep(x = c(FALSE), times = nrow(forest))
+      for (t in 1:nrow(forest)){
         # t <- 1
         # i <- 1
-        vecinity.i[t] <- (stand$COORD.X[t]-harvested$COORD.X[i])**2 + (stand$COORD.Y[t]-harvested$COORD.Y[i])**2 < (harvested$HEIGHT[i]/2)**2
+        vecinity.i[t] <- (forest$COORD.X[t]-harvested$COORD.X[i])**2 + (forest$COORD.Y[t]-harvested$COORD.Y[i])**2 < (harvested$HEIGHT[i]/2)**2
       }
       vecinity <- vecinity | vecinity.i 
     }
   }
   
   #only killing small trees
-  vecinity.small <- vecinity & (stand$DBH < 15)
+  vecinity.small <- vecinity & (forest$DBH < 15)
   
   #There is a 50/50 change of mortality in those small trees
   vecinity.small[vecinity.small] <- sample(x = c(TRUE,FALSE), 

@@ -27,9 +27,10 @@ forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
   
   DBH <- 15 *rexp(n = sum(ACU.n.trees))  #random diameter list  #where did this distribution came from?
   HEIGHT <- DBH %>% get.height()
+  AGB <- get.agb(DBH = DBH, HEIGHT = HEIGHT)
   UNDER.BOSQUETE <- rep(x = FALSE, times = sum(ACU.n.trees))
   COORD.X <- runif(n = sum(ACU.n.trees), min = 0, max=99)
   COORD.Y <- runif(n = sum(ACU.n.trees), min = 0, max=99)
 
-  return(data.frame(ACU, SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X, COORD.Y))
+  return(data.frame(ACU, SPECIES.CODE, DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y))
 }

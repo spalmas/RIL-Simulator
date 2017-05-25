@@ -14,14 +14,15 @@
 #' @examples
 #' source('startup.R')
 #' rotation <- 10
+#' y <- 1
 #' intensity <- 'Normal'
 #' enrich.bosquete <- TRUE
 #' w.dist <- 5
-#' stand <- stand.randomizer()
-#' harvested <- get.harvest(stand, intensity)
+#' forest <- forest.randomizer()
+#' harvested <- get.harvest(forest = forest, intensity = intensity, y = y, rotation = rotation)
 #' do.enrichment(enrich.bosquete = TRUE, harvested = harvested)
-#'y 
-do.enrichment <- function(enrich.bosquete, harvested){
+#' 
+do.enrichment <- function(harvested){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
   bos.n <- floor(nrow(harvested) / 3) #3 harvested trees per bosquete. Rounding down
@@ -35,7 +36,7 @@ do.enrichment <- function(enrich.bosquete, harvested){
   if (n.seedlings < 0 ){n.seedlings <- 0}  #to avoid negative seedlings
   n.seedlings <- round(n.seedlings)
   
-  #create a list of tiny mahoganies. Maybe based on some sory of size probability?
+  #create a list of tiny mahoganies. Maybe based on some sort of size probability?
   enrich.table <- data.frame(SPECIES.CODE = unlist(mapply(rep,
                                                           x = 'SM',
                                                           times = n.seedlings)))
@@ -53,7 +54,7 @@ do.enrichment <- function(enrich.bosquete, harvested){
   enrich.table$DIAMETER.GROWTH <- rep(x = 0, times = n.seedlings) #no initial growth
   
   #adding biomass
-  enrich.table$AGB <- get.agb(enrich.table)
+  enrich.table$AGB <- get.agb(forest = enrich.table)
   
   #boolean column if under bosquete. Perhaps a differetn grwoth for those trees
   enrich.table$UNDER.BOSQUETE <-  rep(x = TRUE, times = n.seedlings)

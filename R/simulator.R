@@ -11,8 +11,7 @@
 #' @param w.dist
 #' @param dir.felling
 #' @param improved.trail
-#' @param lower.impact
-#' @param trees.tab
+#' @param trees.tab Should represent the plots that are harvested in the cycle (25 rotation years, then 25 plots)
 #' @param diameter.eqs
 #' @param volume.eqs
 #'
@@ -29,12 +28,11 @@
 #' table.results <- simulator(sy = 15, 
 #'     it = 2,
 #'     rotation = 10, 
-#'     intensity = 'Normal',
+#'     intensity = 'BAU',
 #'     enrich.bosquete = TRUE, 
 #'     w.dist = 10, 
 #'     dir.felling  = TRUE, 
 #'     improved.trail = TRUE, 
-#'     lower.impact = TRUE, 
 #'     trees.tab  = trees.tab)
 #' View(table.results)
 #' 
@@ -48,7 +46,6 @@ simulator <- function(scenario = 'A',
                       w.dist, 
                       dir.felling, 
                       improved.trail, 
-                      lower.impact,
                       trees.tab){ 
 
   ### TABLE TO STORE VALUES AND REPORT -----------
@@ -62,7 +59,7 @@ simulator <- function(scenario = 'A',
   for (i in 1:it){   #For each iteration
     #i=1
     stand <- trees.tab  #return to initial stand
-    AGB0 <- sum(get.agb(stand), na.rm = TRUE)  #First AGB estimate
+    AGB0 <- stand %>% get.agb() %>% sum(na.rm = TRUE)  #First AGB estimate
     AGB1 <- AGB0  #The first year the sequestration is 0
     
     for (y in 1:sy){   #For each simulation year
@@ -70,17 +67,17 @@ simulator <- function(scenario = 'A',
       row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year for table of results
 
       ######## NATURAL MORTALITY AND HURRICANES
-      natural.dead <- mortality.calc(stand)    #T/F list if they died of natural causes
+      natural.dead <- stand %>% mortality.calc()    #T/F list if they died of natural causes
       stand.dead <- stand[natural.dead,]      #creating a dead list
       stand <- stand[!natural.dead,]          #removing dead from alive stand
       
-      hurricane.dead <- hurricane.mortality(stand)        #T/F list if they died from a hurricane
+      hurricane.dead <- stand %>% hurricane.mortality()        #T/F list if they died from a hurricane
       stand.dead <- rbind(stand.dead, stand[hurricane.dead,])     #Adding dead trees to dead  list
       stand <- stand[!hurricane.dead,]          #removing dead from alive stand
       
 
       ####### GROWTH FUNCTIONS
-      stand$DIAMETER.GROWTH <- get.diameter.growth(stand)   #randomized diameter growth
+      stand$DIAMETER.GROWTH <- stand %>% get.diameter.growth()   #randomized diameter growth
       stand$DBH <- stand$DBH + stand$DIAMETER.GROWTH #assign new diameter
 
       ####### REGENERATION
@@ -91,7 +88,7 @@ simulator <- function(scenario = 'A',
       }      
       
       ####### BIOMASS (IS AFTER NATURAL PROCESSES AND BEFORE HARVEST)
-      stand$AGB <- get.agb(stand)
+      stand$AGB <- stand %>% get.agb()
       AGB.sequestered <- sum(stand$AGB, na.rm = TRUE) - AGB0  #Sequestred value
       AGB0 <- AGB1  #Updating value      
       
@@ -104,14 +101,15 @@ simulator <- function(scenario = 'A',
       emissions.directional <- NA
       
       ####### THINGS HAPPENING IN A HARVESTING YEAR IN THE ROTATION
-      if (y%%rotation == 0 | y == 0){
+      if (y%%rotation == 0 | y == 0){   #if it is a harvest year 
         ####### HARVESTING TREES
-        harvested <- get.harvest(stand = stand, intensity = intensity) #harvesting the stand and store harvested trees
-        harvested$VOLUME <- get.volume(harvested)     #Get total volume harvested
-        harvested$PRICE <- get.price(harvested)       #Assigning price to each tree
-        stand <- stand[!rownames(stand) %in% rownames(harvested),]   #Removing harvested trees from the stand
+        harvested.list <- get.harvest(stand = stand, intensity = intensity) #harvesting the stand and store harvested trees
+        harvested <- stand[harvested.list,]   #Getting a harvested tree list
+        harvested$VOLUME <- harvested %>% get.volume()     #Get total volume harvested
+        harvested$PRICE <- harvested %>% get.price()       #Assigning price to each tree
+        stand <- stand[!harvested.list,]   #Removing harvested trees from the stand
       
-        table.results$N.HARVESTED[row.num] <- nrow(harvested)  #All volume extracted in that year
+        table.results$N.HARVESTED[row.num] <- nrow(harvested)  #Number of extracted trees
         table.results$VOL.HARVESTED[row.num] <- sum(harvested$VOLUME, na.rm = TRUE)  #All volume extacted in that year
         table.results$INCOME[row.num] <- sum(harvested$PRICE, na.rm = TRUE)  #All income from trees harvested in that year
         emissions.harvest <- sum(harvested$AGB, na.rm = TRUE)  #Harvested Biomass 
@@ -134,7 +132,6 @@ simulator <- function(scenario = 'A',
           emissions.directional <- sum(directional.dead$AGB, na.rm = TRUE) #Directional Felling emissions
         }
         
-
       }
 
       #Storing stand results 

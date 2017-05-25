@@ -1,63 +1,62 @@
-#regeneration simulation of a stand
+#' GET REGENERATION
+#'
+#' Long Description: Estimates new trees that are added to the forest. 
+#' The parameters of regeneration are mean and standard deviation number of recruits 
+#' in one hectare by species and depending in the percentage of canopy level.
+#' 
+#'
+#' @param forest list of trees in forest
+#' @param canopy.cover is the mean for all canopy covers
+#'
+#' @references
+#' Ninguna por ahora
 
-#parameters of regeneration. These are mean and standard deviation number of recruits
-#in one hectare by species and depending in the percentage of canopy level.
-#canopy level 999 is the mean for all canopy covers. This could be used if there
-#is no knowledge on the canopy cover
-get.regeneration <- function(stand, canopy.cover){
-  #subset data to only that canopy cover
+#' @return a table new trees that should r bind with forest.
+#'
+#' @examples
+#' source('startup.R')
+#' forest <- forest.randomizer(ROTATIONYEARS = 2)
+#' get.regeneration(forest)
+
+get.regeneration <- function(forest, canopy.cover){
+  #subset data to only that canopy cover and existing species
   canopy.cover  <- 999
-  regen.params.subset <- regen.params[regen.params$CANOPY.COVER == canopy.cover,]
-  #regen.params.subset <- regen.params[regen.params$CANOPY.COVER == 999,]
-  
-  #subset to only species of trees already found in the stand.
-  #There is no recruitment of new species in the stand
-  #This also serves as to limit the species in the simulation
-  regen.params.subset <- regen.params.subset[regen.params.subset$SPECIES.CODE %in% stand$SPECIES.CODE,]
-  
+  regen.params.subset <- regen.params %>% filter(CANOPY.COVER == canopy.cover,
+                                                 SPECIES.CODE %in% forest$SPECIES.CODE)
+
   #randomization of normal regeneration value
   regen.n <- mapply(rnorm,
                        n = 1,
                        mean = regen.params.subset$REG.N.HA.MEAN,
                        sd = regen.params.subset$REG.N.HA.SD)
-  
-  #There is no negative recruitment
-  regen.n[regen.n < 0] <- 1  #at least one tree regenerated
-  
-  #Convert number of recruits in integers
-  regen.n <- round(regen.n)
-  
-  #Adding species names and creating a table
-  regen.table <- data.frame(SPECIES.CODE = regen.params.subset$SPECIES.CODE, REGEN.N = regen.n)
-  
-  
-  regen.table <- data.frame(SPECIES.CODE = unlist(mapply(rep,
-                                          x = as.character(regen.table$SPECIES.CODE),
-                                          times = regen.table$REGEN.N)))
-  
-  #adding the columns as in the normal stand table
-  regen.table$DBH <- rnorm(n = nrow(regen.table), mean = 5, sd = 1)
-  regen.table$DBH[regen.table$DBH < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution
-  regen.table$HEIGHT <- get.height(regen.table$DBH)
-  regen.table$HEIGHT[regen.table$HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution
-  regen.table$DIAMETER.GROWTH <- get.diameter.growth(regen.table)   #randomized diameter growth
-  #regen.table$VOLUME <- get.volume(regen.table)
-  regen.table$AGB <- get.agb(regen.table)
-  regen.table$UNDER.BOSQUETE <- FALSE
-  regen.table$COORD.X <- runif(n = sum(regen.n), min = 0, max = 99)
-  regen.table$COORD.Y <- runif(n = sum(regen.n), min = 0, max = 99)
-  
 
+  #There is no negative recruitment
+  regen.n[regen.n < 0] <- 0  #no negative regeneration, just in case.
   
-    #regen.table$DIAMETER.GROWTH <- NA
+  #Convert number of recruits to integers
+  regen.n <- round(regen.n)
+
+  #total number of recruits
+  forest.regen.n <- sum(regen.n)
+  
+  #Creating list of species
+  SPECIES.CODE <- rep(x = regen.params.subset$SPECIES.CODE, times = regen.n)
+  ACU <- sample(x = unique(forest$ACU), replace = TRUE, size = forest.regen.n) #Randomized ACU, all with same probabilities
+  DBH <- 10 + (rexp(n = length(SPECIES.CODE)))/2   #
+  HEIGHT <- get.height(DBH)
+  #HEIGHT[HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution NOT NEEDED?
+  DIAMETER.GROWTH <- rep(x = 0, times = )   #no initial DIAMETER.GROWTH. Just added for the column
+  #regen.table$VOLUME <- get.volume(regen.table)
+  AGB <- get.agb(DBH = DBH, HEIGHT = HEIGHT)
+  UNDER.BOSQUETE <- rep(x = c(FALSE), times = forest.regen.n)
+  COORD.X <- runif(n = forest.regen.n, min = 0, max = 99)
+  COORD.Y <- runif(n = forest.regen.n, min = 0, max = 99)
+  
   #regen.table$VOLUME <- NA
-  #regen.table$AGB <- NA
-  
+
   #delete row names to avoid problems later
-  row.names(regen.table) <- NULL
+  #row.names(regen.table) <- NULL
   
-  
-  
-  return(regen.table)
+  return(data.frame(ACU, SPECIES.CODE, DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y, row.names = NULL))
 }
 

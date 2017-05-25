@@ -27,14 +27,14 @@
 #' killed.trees <- stand[inside.small,]
 
 
-skidding.mortality <- function(stand, w.dist, harvested){
+skidding.mortality <- function(forest, w.dist, harvested){
   #y =20
   
   #harvested <- get.harvest(stand, intensity, y, rotation) #harvesting the stand and store harvested trees
   #w.dist <- 00
   
   #cretes an empty array of FALSE with the length of the stand
-  inside <- rep(x = c(FALSE), times = nrow(stand))
+  inside <- rep(x = c(FALSE), times = nrow(forest))
   inside.small <- inside
   
   if (nrow(harvested) != 0){    #If there are trees harvested
@@ -47,11 +47,11 @@ skidding.mortality <- function(stand, w.dist, harvested){
                           ncol = 2, byrow = TRUE)
       #Check if some trees are inside the rectangle and add them to the total list of trees that will be killed
       #in.out from mgcv package
-      inside <- inside | in.out(bnd = rectangle, x = matrix(data = c(stand$COORD.X, stand$COORD.Y), ncol = 2))
+      inside <- inside | in.out(bnd = rectangle, x = matrix(data = c(forest$COORD.X, forest$COORD.Y), ncol = 2))
     }
   
   #only cutting those that are inside the rctantgle and are small trees  
-  inside.small <- inside & (stand$DBH < 15)
+  inside.small <- inside & (forest$DBH < 15)
     
   }
 
