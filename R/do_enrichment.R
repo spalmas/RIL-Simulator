@@ -13,56 +13,41 @@
 #'
 #' @examples
 #' source('startup.R')
-#' rotation <- 10
-#' y <- 1
-#' intensity <- 'Normal'
-#' enrich.bosquete <- TRUE
-#' w.dist <- 5
-#' forest <- forest.randomizer()
-#' harvested <- get.harvest(forest = forest, intensity = intensity, y = y, rotation = rotation)
-#' do.enrichment(enrich.bosquete = TRUE, harvested = harvested)
+#' forest <- forest.randomizer(ROTATIONYEARS = 25)
+#' forest$HARVESTED <- get.harvest(forest = forest, intensity = 'All', y = 1, rotation = 25)
+#' harvested <- forest[forest$HARVESTED,]
+#' do.enrichment(harvested = harvested, ACU  = 1)
 #' 
-do.enrichment <- function(harvested){
+do.enrichment <- function(harvested, ACU){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
-  bos.n <- floor(nrow(harvested) / 3) #3 harvested trees per bosquete. Rounding down
   
-  # it sums the area of bosquetes
-  area.bosquete <- sum(rnorm(n = bos.n, mean = .1, sd = 0.039))  #randomized total cleared area for bosquetes
-  if (area.bosquete < 0 ){area.bosquete <- 0.1}  #to avoid negative area (change to other distribution?)
-  
-  #estimating the number of total added seedlings to the hectare 
-  n.seedlings <- area.bosquete * rnorm(n = 1, mean = 2000, sd = 600)
-  if (n.seedlings < 0 ){n.seedlings <- 0}  #to avoid negative seedlings
-  n.seedlings <- round(n.seedlings)
-  
-  #create a list of tiny mahoganies. Maybe based on some sort of size probability?
-  enrich.table <- data.frame(SPECIES.CODE = unlist(mapply(rep,
-                                                          x = 'SM',
-                                                          times = n.seedlings)))
+    #Estimating the number of new seedlings
+  n.seedlings <- harvested %>% nrow() %>% prod(., 1/3) %>%     #one bosquete at for each 3 harvested trees 
+    rlnorm(n = ., mean = 0.1, sd = 0.039) %>%  #randomized area (ha), n is decimal, but it rounds as floor
+    sum() %>%   #adding the area of all randomized bosquetes
+    prod(., rnorm(n = 1, mean = 2000, sd = 600), .7 ) %>%    #a mean of 2000 seedlings per hectare and reducing to 70% because not all area of bosquete is used
+    round()   #integer number of new seedlings.
+
+  #Creating a table with n.seedlings mahoganies
+  enrich.table <- as_tibble(rep(x = 'SM', times = n.seedlings)) 
   colnames(enrich.table) <- 'SPECIES.CODE'
   
-  #adding the columns as in the normal stand table
-  enrich.table$DBH <- rnorm(n = nrow(enrich.table), mean = 1, sd = .15)
-  enrich.table$DBH[enrich.table$DBH < 0.4] <- 1   #no diameters under .5 cm, changing to 1
+  #adding new variables
+  enrich.table <- enrich.table %>% 
+    mutate(
+      ACU = ACU,
+      DBH = rlnorm(n = nrow(enrich.table), mean = 1, sd = .15),
+      HEIGHT = rlnorm(n = nrow(enrich.table) , mean = 1, sd = .15),   #should change to allometric equations
+      DIAMETER.GROWTH = 0,#no initial growth
+      UNDER.BOSQUETE <- TRUE,
+      COORD.X <-  runif(n = nrow(enrich.table), min = 0, max = 99),
+      COORD.Y <-  runif(n = nrow(enrich.table), min = 0, max = 99)
+    )
+      
+  enrich.table$AGB = get.agb(forest = enrich.table)
   
-  #Estimating height
-  enrich.table$HEIGHT <- rnorm(n = nrow(enrich.table), mean = 1, sd = .15)
-  enrich.table$HEIGHT[enrich.table$HEIGHT < 0.5] <- 0.5   #no heights under .5m, changing to 0.5m
-  
-  #no diameter growth
-  enrich.table$DIAMETER.GROWTH <- rep(x = 0, times = n.seedlings) #no initial growth
-  
-  #adding biomass
-  enrich.table$AGB <- get.agb(forest = enrich.table)
-  
-  #boolean column if under bosquete. Perhaps a differetn grwoth for those trees
-  enrich.table$UNDER.BOSQUETE <-  rep(x = TRUE, times = n.seedlings)
-  
-  #adding coordinates to the trees. 
-  
-  enrich.table$COORD.X <-  runif(n = n.seedlings, min = 0, max = 99)
-  enrich.table$COORD.Y <-  runif(n = n.seedlings, min = 0, max = 99)
   #retunning a list of enrichment plants
   return(enrich.table)
-  }
+
+}
