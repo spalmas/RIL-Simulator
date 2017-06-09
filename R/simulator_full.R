@@ -13,16 +13,11 @@
 #' @param w.dist
 #' @param dir.felling
 #' @param improved.trail
-#' @param trees.tab Should represent the plots that are harvested in the cycle (25 rotation years, then 25 plots)
-#' @param diameter.eqs
-#' @param volume.eqs
+#' @param forest.tab Forest list of trees
 #'
 #' @references
 #' Ninguna por ahora
-
 #' @return a table with yearly results of BA (Basal Area in the stand), AGB (aboveground biomass in stand), INCOME, volume extracted, total sell price of products extraccted 
-#'
-#' @seealso \code{\link{hd_coef}}. For BA, QD and N see \code{\link{get_stand}}
 #'
 #' @examples
 #' source('startup.R')
@@ -65,10 +60,13 @@ simulator <- function(scenario = 'A',
     AGB0 <- forest$AGB %>% sum(na.rm = TRUE)  #First AGB estimate
     AGB1 <- AGB0  #The first year the sequestration is 0
     
-    for (y in 1:sy){   #For each simulation year
+    for (y in 0:(sy-1)){   #For each simulation year
       #y=1
-      row.num <- y + (i - 1) * sy #row number based on the repetition and simulation year for table of results
+      row.num <- (y + 1) + (i - 1) * sy #row number based on the repetition and simulation year for table of results
 
+      #Get ACA from the year
+      ACA <- y -  rotation*(floor(y/rotation))
+      
       ######## NATURAL MORTALITY AND HURRICANES
       natural.dead <- forest %>% mortality.calc()    #T/F list if they died of natural causes
       forest.dead <- forest[natural.dead,]      #creating a dead list
@@ -80,8 +78,7 @@ simulator <- function(scenario = 'A',
       
 
       ####### GROWTH FUNCTIONS
-      forest$DIAMETER.GROWTH <- forest %>% get.diameter.growth()   #randomized diameter growth
-      forest$DBH <- forest$DBH + forest$DIAMETER.GROWTH #assign new diameter
+      forest <- forest %>% get.diameter.growth()   #randomized diameter growth
 
       ####### REGENERATION
       #it only occurs every four years
@@ -103,8 +100,8 @@ simulator <- function(scenario = 'A',
       emissions.skidding <- NA
       emissions.directional <- NA
       
-      ####### HARVESTING TREES
-      harvested.list <- get.harvest(forest = forest, intensity = intensity, y = y, rotation = rotation) #harvesting the forest and store harvested trees
+      ####### HARVESTING TREES. Since harvesting trees already occurs only at one plot, harvested values are already in one hectare scale
+      harvested.list <- get.harvest(forest = forest, intensity = intensity, ACA. = ACA) #harvesting the forest and store harvested trees
       harvested <- forest[harvested.list,]   #Getting a harvested tree list
       harvested$VOLUME <- harvested %>% get.volume()     #Get total volume harvested
       harvested$PRICE <- harvested %>% get.price()       #Assigning price to each tree
@@ -117,8 +114,8 @@ simulator <- function(scenario = 'A',
       
       ####### DO ENRICHMENT PLANTING
       if (enrich.bosquete){
-        enrichment.table <- do.enrichment(harvested = harvested)
-        stand <- bind_rows(forest, enrichment.table)  #adding the new trees to the stand
+        enrichment.table <- do.enrichment(harvested = harvested, ACA = ACA) #IT MAY RETURN ACU FROM PREVIOUS CYCLE IF NO WERE CUT
+        forest <- bind_rows(forest, enrichment.table)  #adding the new trees to the stand
         AGB.sequestered <- sum(enrichment.table$AGB, AGB.sequestered, na.rm = TRUE) #Adding the small sequestered biomass
       }
       
@@ -145,7 +142,6 @@ simulator <- function(scenario = 'A',
       table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
       #table.results[row.num,'HURRICANE'] <- hurricane.dead  #Add if this was a hurricane year
-      
     }  
   }
   

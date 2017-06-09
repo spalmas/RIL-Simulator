@@ -5,6 +5,7 @@ library(gridExtra) #For making multiplots
 library(mgcv)
 library(reshape2)
 library(shiny)     #For app 
+library(tidyverse) #for data management
 library(truncnorm) #Truncated normal distribution package for ,,,
 
 #---------------IMPORTING SOURCE FILES----------------
@@ -26,10 +27,10 @@ ui <- fluidPage(
     column(3,
            textInput('scenario', "Scenario name", value = 'RIL'),
            sliderInput("rotation", "Rotation Years", min = 1, max = 50, value = 15, step = 1),
-           sliderInput("w.dist", "Winching distance", min = 0, max = 30, value = 10, step = 1)
+           sliderInput("w.dist", "Winching distance", min = 0, max = 25, value = 10, step = 1)
     ),
     column(3,
-           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Normal', 'High'), selected = c('Normal')),
+           selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Low','BAU', 'High', 'Highest'), selected = c('BAU')),
            checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
            #checkboxInput("improved.trail", label = 'Improved Skid Trail planning', value = TRUE),
            #checkboxInput("lower.impact", label = 'Lower-impact skidding', value = TRUE),
@@ -80,7 +81,6 @@ server <- function(input, output) {
               w.dist = input$w.dist,
               dir.felling = input$dir.felling,
               improved.trail = input$improved.trail,
-              lower.impact = input$lower.impact,
               trees.tab = trees.tab())
   })
   
@@ -95,7 +95,6 @@ server <- function(input, output) {
               w.dist = 0,
               dir.felling = FALSE,
               improved.trail = FALSE,
-              lower.impact = FALSE,
               trees.tab = trees.tab())
   })
   

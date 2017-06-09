@@ -41,7 +41,7 @@ get.regeneration <- function(forest, canopy.cover){
   
   #Creating list of species
   SPECIES.CODE <- rep(x = regen.params.subset$SPECIES.CODE, times = regen.n)
-  ACU <- sample(x = unique(forest$ACU), replace = TRUE, size = forest.regen.n) #Randomized ACU, all with same probabilities
+  ACA <- sample(x = unique(forest$ACA), replace = TRUE, size = forest.regen.n) #Randomized ACU, all with same probabilities
   DBH <- 10 + (rexp(n = length(SPECIES.CODE)))/2   #
   HEIGHT <- get.height(DBH)
   #HEIGHT[HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution NOT NEEDED?
@@ -51,12 +51,13 @@ get.regeneration <- function(forest, canopy.cover){
   UNDER.BOSQUETE <- rep(x = c(FALSE), times = forest.regen.n)
   COORD.X <- runif(n = forest.regen.n, min = 0, max = 99)
   COORD.Y <- runif(n = forest.regen.n, min = 0, max = 99)
+  HARVESTED <- rep(x = c(FALSE), times = forest.regen.n)
   
   #regen.table$VOLUME <- NA
 
   #delete row names to avoid problems later
   #row.names(regen.table) <- NULL
   
-  return(data.frame(ACU, SPECIES.CODE, DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y, row.names = NULL))
+  return(data.frame(ACA, SPECIES.CODE, DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y, HARVESTED, row.names = NULL))
 }
 

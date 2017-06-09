@@ -11,11 +11,12 @@
 #'
 #' @examples
 #' source('startup.R')
-#' forest <- forest.randomizer(ROTATIONYEARS = 25)
-#' forest$HARVESTED <- get.harvest(forest = forest, intensity = 'All', y = 1, rotation = 25)
-#' forest[forest$HARVESTED,]
+#' forest <- forest.randomizer(ROTATIONYEARS = 10)
+#' harvested.list <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
+#' harvested <- forest[harvested.list,]
+#' do.enrichment(harvested = harvested, ACA  = 1)
 
-get.harvest <- function(forest, intensity, y = y, rotation = rotation){
+get.harvest <- function(forest, intensity, ACA.){
   
   if (intensity == 'No logging'){
     return(rep(c(FALSE), times = nrow(forest)))
@@ -28,18 +29,12 @@ get.harvest <- function(forest, intensity, y = y, rotation = rotation){
   #Getting the percent of trees to be harvested
   perc_intensity <-  intensity.table$perc_intensity[intensity.table$intensity == intensity]
   
-  #Getting a harvestable list depending on minimum diameters (or some other condition, maybe price?)
-  #harvestable <-  (forest$DBH > 55 & forest$SPECIES.CODE == 'SM')  |
-  #  (forest$DBH > 35 & forest$SPECIES.CODE != 'SM') |
-  #  (y == ACU | (y == (ACU + rotation)) | (y == (ACU + 2 * rotation)))
-  
-  #Getting a list 
+  #adding a column with a harvestable list depending on minimum diameters and ACA
   forest <-  forest %>% mutate(
-    harvestable = ((DBH > 55 & SPECIES.CODE == 'SM') | (DBH > 35 & SPECIES.CODE != 'SM')) &
-    ((y == ACU) | (y == (ACU + rotation)) | (y == (ACU + 2 * rotation)))
+    harvestable = ((DBH > 55 & SPECIES.CODE == 'SM') | (DBH > 35 & SPECIES.CODE != 'SM')) & (ACA == ACA.)
     )
   
-  #Getting a harvestable stand table
+  #Getting a harvestable stand table #splyr erases row numbers
   harvestable.stand <- forest[forest$harvestable,]
   
   #Getting the percent of trees to be harvested

@@ -28,7 +28,7 @@ source('R/mortality_calc.R')
 source('R/multiplot.R')
 source('R/skidding_mortality.R')
 source('R/stand_parameters_calc.R')
-source('R/stand_randomizer.R')
+#source('R/stand_randomizer.R')
 
 regen.params <- read.csv('data/regenation_params.csv', sep = ',')
 
