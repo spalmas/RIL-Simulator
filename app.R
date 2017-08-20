@@ -1,10 +1,10 @@
 #---------------IMPORTING PACKAGES----------------
 library(ggplot2)   #For plotting
 library(grid)      #For making multiplots
-library(gridExtra) #For making multiplots 
+library(gridExtra) #For making multiplots
 library(mgcv)
 library(reshape2)
-library(shiny)     #For app 
+library(shiny)     #For app
 library(tidyverse) #for data management
 library(truncnorm) #Truncated normal distribution package for ,,,
 
@@ -42,20 +42,20 @@ ui <- fluidPage(
            fileInput('trees.tab', label = 'Tree Inventory')
     )
   ),
-  
-  actionButton(inputId = 'run', label = 'Run!', 
+
+  actionButton(inputId = 'run', label = 'Run!',
                icon = icon('line-chart', class = NULL, lib = "font-awesome")),
-  
-  #Syummary Table of results
+
+  #Summary Table of results
   tableOutput(outputId = 'table.summary'),
-  
+
   #Button to download results data. Should only work if soimulation is done. Downloads only scenario table.
   downloadButton(outputId = 'downloadData', label =  'Download'),
-  
+
   #Plots
   plotOutput(outputId = "plots")
-  
-  
+
+
 )
 
 #---------------SERVER----------------
@@ -68,10 +68,10 @@ server <- function(input, output) {
     }
     stand.randomizer()
   })
-  
-  
+
+
   #---------------SIMULATOR SCENARIO----------------
-  SCENARIO.results  <- eventReactive(input$run,{
+  SCENARIO.results  <- eventReactive(eventExpr = input$run,{
     simulator(scenario = input$scenario,
               it = input$it,
               sy = input$sy,
@@ -83,9 +83,9 @@ server <- function(input, output) {
               improved.trail = input$improved.trail,
               trees.tab = trees.tab())
   })
-  
+
   #---------------SIMULATOR BAU----------------
-  BAU.results  <- eventReactive(input$run,{
+  BAU.results  <- eventReactive(eventExpr = input$run,{
     simulator(scenario = 'BAU',
               it = input$it,
               sy = input$sy,
@@ -97,17 +97,17 @@ server <- function(input, output) {
               improved.trail = FALSE,
               trees.tab = trees.tab())
   })
-  
+
 
   #---------------OUTPUT PLOTS----------------
   #eventReactive() returns NULL until the action button is
-  #clicked. As a result, the graph does not appear until 
+  #clicked. As a result, the graph does not appear until
   #the user asks for it by clicking “Go”.
   output$plots <- renderPlot({
-    
+
     results <- rbind(SCENARIO.results(), BAU.results())
-    
-    AGB.plot <- ggplot(results, aes(x = YEAR, y = AGB, colour = SCENARIO)) + 
+
+    AGB.plot <- ggplot(results, aes(x = YEAR, y = AGB, colour = SCENARIO)) +
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
       geom_smooth(span=0.2, aes(fill=SCENARIO)) +
@@ -117,7 +117,7 @@ server <- function(input, output) {
       xlab(paste ("Year")) +  # X Label
       ylab(paste ("MgC")) +  #Y Label
       labs(title = 'AGB')
-    
+
     BA.plot <- ggplot(results, aes(x = YEAR, y = BA, colour = SCENARIO)) +
       #stat_summary(fun.data = 'mean_sdl', geom = 'ribbon', mult = 1, alpha =0.3) + #adding standard deviation shading
       #stat_summary(fun.y = 'mean', geom = 'line', size = 1) + #adding mean line
@@ -128,7 +128,7 @@ server <- function(input, output) {
       xlab(paste ("Year")) +  # X Label
       ylab(paste ("m2")) +  #Y Label
       labs(title = 'Basal Area')
-    
+
     NET.SEQUESTERED.plot <- ggplot(results, aes(x = YEAR, y = NET.SEQUESTERED, colour = SCENARIO)) +
       geom_smooth(span=0.2, aes(fill=SCENARIO)) +
       ggplot_params() + #General graph Parameters. Found in Helpers.R
@@ -137,7 +137,7 @@ server <- function(input, output) {
       xlab(paste ("Year")) +  # X Label
       ylab(paste ("MgC")) +  #Y Label
       labs(title = 'Sequestered Carbon')
-    
+
     INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = factor(YEAR), y = INCOME, colour = SCENARIO)) +
       geom_boxplot() +
       #stat_ecdf() +
@@ -149,18 +149,18 @@ server <- function(input, output) {
       labs(title = "Income")
 
     multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, INCOME.plot, cols=2)
-    
+
   }, width = 1000, height = 800)
-  
-  #Summary of results 
+
+  #Summary of results
 
   output$table.summary <- renderTable({
     table.summary <- matrix(data = c( mean.sd(results.column = 'N.HARVESTED', data = SCENARIO.results()),
-                                      mean.sd(results.column = 'VOL.HARVESTED', data = SCENARIO.results()),                                   
-                                      mean.sd(results.column = 'EMISSIONS', data = SCENARIO.results()),                                     
-                                      mean.sd(results.column = 'EMISSIONSperm3', data = SCENARIO.results()),                                     
-                                      mean.sd(results.column = 'INCOME', data = SCENARIO.results()),                                    
-                                      
+                                      mean.sd(results.column = 'VOL.HARVESTED', data = SCENARIO.results()),
+                                      mean.sd(results.column = 'EMISSIONS', data = SCENARIO.results()),
+                                      mean.sd(results.column = 'EMISSIONSperm3', data = SCENARIO.results()),
+                                      mean.sd(results.column = 'INCOME', data = SCENARIO.results()),
+
                                       mean.sd(results.column = 'N.HARVESTED', data = BAU.results()),
                                       mean.sd(results.column = 'VOL.HARVESTED', data = BAU.results()),
                                       mean.sd(results.column = 'EMISSIONS', data = BAU.results()),
@@ -175,11 +175,11 @@ server <- function(input, output) {
                                  'MgC Emissions per m3 harvested (All years)',
                                  'Income (1000 MXN)')
     colnames(table.summary) <- c('Scenario', 'BAU')
-    
+
     #Emissions per m3 harvested
     table.summary
   })
-  
+
   #---------------DOWNLOAD TABLE OF RESULTS----------------
   #Downloading works only outside Rstudio. It needs to run externally to work
   output$downloadData <- downloadHandler(
@@ -187,7 +187,7 @@ server <- function(input, output) {
     filename = function() {
       paste(input$scenario,'.csv', sep = '')
     },
-    
+
     # This function should write data to a file given to it by the argument 'file'.
     content = function(file) {
       # Write to a file specified by the 'file' argument

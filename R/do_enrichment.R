@@ -17,7 +17,7 @@
 #' forest$HARVESTED <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
 #' harvested <- forest[forest$HARVESTED,]
 #' do.enrichment(harvested = harvested, ACA  = 1)
-#' 
+
 do.enrichment <- function(harvested, ACA){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
@@ -31,7 +31,7 @@ do.enrichment <- function(harvested, ACA){
     round()   #integer number of new seedlings.
 
   #Creating a table with n.seedlings mahoganies
-  enrich.table <- as_tibble(rep(x = 'SM', times = n.seedlings)) 
+  enrich.table <- as_tibble(rep(x = 'SWMA', times = n.seedlings)) 
   colnames(enrich.table) <- 'SPECIES.CODE'
   
   #adding new variables. Should be the same as forest randomizer

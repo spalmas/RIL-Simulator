@@ -11,10 +11,9 @@
 #'
 #' @examples
 #' source('startup.R')
-#' forest <- forest.randomizer(ROTATIONYEARS = 10)
+#' forest <- forest.randomizer(ROTATIONYEARS = 2)
 #' harvested.list <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
-#' harvested <- forest[harvested.list,]
-#' do.enrichment(harvested = harvested, ACA  = 1)
+#' forest[harvested.list,]
 
 get.harvest <- function(forest, intensity, ACA.){
   
@@ -34,18 +33,14 @@ get.harvest <- function(forest, intensity, ACA.){
     harvestable = ((DBH > 55 & SPECIES.CODE == 'SM') | (DBH > 35 & SPECIES.CODE != 'SM')) & (ACA == ACA.)
     )
   
-  #Getting a harvestable stand table #splyr erases row numbers
-  harvestable.stand <- forest[forest$harvestable,]
+  #Getting the number of trees to be harvested based on the intensity and rounded down
+  n.harvestable <-  ((forest$harvestable %>% sum) * perc_intensity) %>% floor()
+
+  #TRUE/FALSE which of the harvestable trees are the n.harvestable biggest trees
+  biggest.harvested <- forest[forest$harvestable,]$DBH %>% order(decreasing = TRUE) <= n.harvestable
   
-  #Getting the percent of trees to be harvested
-  n.harvestable <-  perc_intensity * nrow(harvestable.stand) %>% floor()
-  #n.harvestable <-  nrow(harvestable.stand) %>% floor() just for trying
-  
-  #Finding the rownames of the n biggest trees
-  biggest.n <- rownames(harvestable.stand)[order(harvestable.stand$DBH, decreasing = TRUE)[1:n.harvestable]]
-  
-  #TRUE/FALSE of harvested tree from stand
-  harvested <- rownames(forest) %in% biggest.n
+  #TRUE/FALSE. Getting rownames of the trees to be harvested
+  harvested <- rownames(forest) %in% which(forest$harvestable)[biggest.harvested]
   
   return(harvested)
 }

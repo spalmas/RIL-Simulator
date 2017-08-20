@@ -1,9 +1,9 @@
 #' HURRICANE MORTALITY 
 #'
-#' Calculates a probability for catastrophic hurricane every 10 years for each tree
-#' and kills a probability of around X% of all trees
+#' Assigns trees mortality from hurricanes using the small.mortality estimated in the simulator
 #'
 #' @param forest Complete list of forest trees
+#' @param small.mortality Probability of dying for small trees. COmes from the simulator.
 #'
 #' @references
 #' Whigham et al. 1991; Sanchez Sanchez 1999; Bonilla-Moheno 2010; McGroddy et al. 2013
@@ -15,14 +15,9 @@
 #' forest <- forest.randomizer()
 #' hurricane.mortality(forest)
 #' 
-hurricane.mortality <- function(forest){
-  
-  #Hurricane mortality probabilities. Already with
-  small.mortality <- sample(x = c(0, 0.1, 0.2, 0.3),   #For hurricane 3,4,5, small trees. Big trees are + 0.1
-                           prob = c(0.55, 0.2, 0.15, 0.1),  size = 1)
-  
-  #empty FALSE vector
-  hurricane.dead <- rep(x = c(FALSE), times = nrow(forest))   #cretes an empty array of FALSE with the length of the stand
+hurricane.mortality <- function(forest, small.mortality){
+    #empty FALSE vector
+  hurricane.dead <- rep(x = c(FALSE), times = nrow(forest))   #creates an empty array of FALSE with the length of the stand
   
   if (small.mortality > 0){
     

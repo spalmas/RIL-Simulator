@@ -51,7 +51,7 @@ skidding.mortality <- function(forest, w.dist, harvested){
     }
   
   #only cutting those that are inside the rctantgle and are small trees  
-  inside.small <- inside & (forest$DBH < 15)
+  inside.small <- inside & (forest$DBH < 20)
     
   }
 

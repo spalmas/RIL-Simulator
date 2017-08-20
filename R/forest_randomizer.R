@@ -13,7 +13,7 @@
 #' source('startup.R')
 #' forest <- forest.randomizer(ROTATIONYEARS = 3)
 #' head(forest)
-#' 
+#' str(forest)
 forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
 
   ACA.n.trees <- rpois(n = ROTATIONYEARS, lambda = lambda)     #Random number of trees in each ACU
@@ -22,7 +22,7 @@ forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
   ACA <- rep(x = 0:(ROTATIONYEARS-1), times = ACA.n.trees)
   
   #Randomization of species
-  species.options <- c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX') #options of species
+  species.options <- c('SWMA', 'LYLA', 'MEBR', 'MAZA', 'POUN', 'XXXX') #options of species
   SPECIES.CODE <- species.options %>% sample(size = sum(ACA.n.trees), replace = TRUE)  #A list of n.trees species
   
   DBH <- 15 *rexp(n = sum(ACA.n.trees))  #random diameter list  #where did this distribution came from?
@@ -33,5 +33,5 @@ forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
   COORD.X <- runif(n = sum(ACA.n.trees), min = 0, max=99)
   COORD.Y <- runif(n = sum(ACA.n.trees), min = 0, max=99)
 
-  return(data.frame(ACA, SPECIES.CODE, DBH, D.DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y))
+  return(tibble(ACA, SPECIES.CODE, DBH, D.DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y))
 }

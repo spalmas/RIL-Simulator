@@ -1,24 +1,27 @@
-#' Function to estimate Above Ground Biomass of the trees from Cairns Paper
+#' Function to estimate Above Ground Biomass of the trees from Chave Paper
 #'
 #' Gets the AGB for a table of trees
 #'
 #' @param forest: table of trees with columns of DBH and HEIGHT 
 #'
-#' @references  Cairns paper
+#' @references  Chave 2009, 2014, Zanne 2009 
 #' 
-#' @return AGB in megagrams of Carbon of dried biomass
+#' @return AGB in Mg of carbon
 #'
 #' @examples
 #' source('startup.R')
-#' stand <- stand.randomizer()
-#' stand$AGB <- get.agb(stand) 
-#' stand$DIAMETER.GROWTH <- 0
-#' stand <- rbind(stand, get.regeneration(stand))
-#' get.agb(stand)
+#' forest <- forest.randomizer()
+#' forest$AGB <- get.agb(forest) 
 
-get.agb <- function(forest = NULL, DBH = NA, HEIGHT = NA){
+get.agb <- function(forest = NULL, DBH = NA, HEIGHT = NA, SPECIES.CODE. = NA){
   if (is.null(forest)){
-    return(0.47*(exp(-2.173+0.868 * log(DBH^2 * HEIGHT)+ 0.0939 / 2)) / 1000)
+    wd <- (species %>% filter(SPECIES.CODE == SPECIES.CODE.))$wd
+    AGB <- 0.0673*(wd*DBH^2*H)^0.976 / 1000
+  } else{
+    wd <- species$wd[match(forest$SPECIES.CODE, species$SPECIES.CODE)]
+    AGB <- 0.0673*(wd*forest$DBH^2*forest$HEIGHT)^0.976 / 1000
   }
-  return(0.47*(exp(-2.173+0.868 * log(forest$DBH^2 * forest$HEIGHT)+ 0.0939 / 2)) / 1000)
+  
+  return(AGB)
 }
+
