@@ -10,10 +10,8 @@
 #' @return dataframe with ACA, SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X AND COORD.Y
 #'
 #' @examples
-#' source('startup.R')
-#' forest <- forest.randomizer(ROTATIONYEARS = 3)
+#' forest <- forest.randomizer(ROTATIONYEARS = 1)
 #' head(forest)
-#' str(forest)
 forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
 
   ACA.n.trees <- rpois(n = ROTATIONYEARS, lambda = lambda)     #Random number of trees in each ACU
@@ -28,10 +26,12 @@ forest.randomizer <- function(lambda = 70, ROTATIONYEARS = 1){
   DBH <- 15 *rexp(n = sum(ACA.n.trees))  #random diameter list  #where did this distribution came from?
   D.DBH <- rep(x = c(NA), times = sum(ACA.n.trees))
   HEIGHT <- DBH %>% get.height()
-  AGB <- get.agb(DBH = DBH, HEIGHT = HEIGHT)
   UNDER.BOSQUETE <- rep(x = FALSE, times = sum(ACA.n.trees))
   COORD.X <- runif(n = sum(ACA.n.trees), min = 0, max=99)
   COORD.Y <- runif(n = sum(ACA.n.trees), min = 0, max=99)
-
-  return(tibble(ACA, SPECIES.CODE, DBH, D.DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y))
+  
+  df <- tibble(ACA, SPECIES.CODE, DBH, D.DBH, HEIGHT, UNDER.BOSQUETE, COORD.X, COORD.Y)
+  df$AGB <- get.agb(forest = df)
+  
+  return(df)
 }

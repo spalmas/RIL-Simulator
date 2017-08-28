@@ -50,7 +50,7 @@ get.regeneration <- function(forest){
     #total number of recruits
     forest.regen.n <- sum(regen.n)
 
-    
+    #only if there are new trees in the ACA
     if (forest.regen.n > 0){
       
       #Creating list of species
@@ -61,12 +61,12 @@ get.regeneration <- function(forest){
       #HEIGHT[HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution NOT NEEDED?
       DIAMETER.GROWTH <- rep(x = NA, times = forest.regen.n)   #no initial DIAMETER.GROWTH. Just added for the column
       #regen.table$VOLUME <- get.volume(regen.table)
-      AGB <- get.agb(DBH = DBH, HEIGHT = HEIGHT, SPECIES.CODE. = SPECIES.CODE)
       UNDER.BOSQUETE <- rep(x = c(FALSE), times = forest.regen.n)
       COORD.X <- runif(n = forest.regen.n, min = 0, max = 99)
       COORD.Y <- runif(n = forest.regen.n, min = 0, max = 99)
       HARVESTED <- rep(x = c(FALSE), times = forest.regen.n)
-      regen.ACA <- tibble(ACA, SPECIES.CODE, DBH, HEIGHT, AGB, UNDER.BOSQUETE, COORD.X, COORD.Y, HARVESTED)
+      regen.ACA <- tibble(ACA, SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X, COORD.Y, HARVESTED)
+      regen.ACA$AGB <- get.agb(regen.ACA)
       regen.table <- rbind(regen.table, regen.ACA)
     }
   }

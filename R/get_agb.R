@@ -15,8 +15,8 @@
 
 get.agb <- function(forest = NULL, DBH = NA, HEIGHT = NA, SPECIES.CODE. = NA){
   if (is.null(forest)){
-    wd <- (species %>% filter(SPECIES.CODE == SPECIES.CODE.))$wd
-    AGB <- 0.0673*(wd*DBH^2*H)^0.976 / 1000
+    wd <- species$wd[match(SPECIES.CODE, species$SPECIES.CODE)]
+    AGB <- 0.0673*(wd*DBH^2*HEIGHT)^0.976 / 1000
   } else{
     wd <- species$wd[match(forest$SPECIES.CODE, species$SPECIES.CODE)]
     AGB <- 0.0673*(wd*forest$DBH^2*forest$HEIGHT)^0.976 / 1000

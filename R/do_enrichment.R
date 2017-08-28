@@ -17,8 +17,7 @@
 #' forest$HARVESTED <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
 #' harvested <- forest[forest$HARVESTED,]
 #' do.enrichment(harvested = harvested, ACA  = 1)
-
-do.enrichment <- function(harvested, ACA){
+do.enrichment <- function(harvested, ACA.){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
   
@@ -37,7 +36,7 @@ do.enrichment <- function(harvested, ACA){
   #adding new variables. Should be the same as forest randomizer
   enrich.table <- enrich.table %>% 
     mutate(
-      ACA = ACA,
+      ACA = ACA.,
       DBH = log(rlnorm(n = nrow(enrich.table), mean = 1, sd = .15)),
       HEIGHT = log(rlnorm(n = nrow(enrich.table) , mean = 1, sd = .15)),   #should change to allometric equations
       D.DBH = NA,#no initial growth
