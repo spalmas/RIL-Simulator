@@ -26,13 +26,14 @@ shinyApp(
                sidebarPanel(width = 4,
                             h3("Input parameters"),
                             fileInput("treelist", "Tree list:"),
-                            sliderInput(inputId = 'sy', label = "Simulation Years", min = 5, max = 50, value = 35, step = 1),
                             selectInput("intensity", "Intensity of logging", choices = c('No Logging', 'Low','BAU', 'High', 'Highest'), selected = c('BAU')),
-                            sliderInput("w.dist", "Winching distance", min = 0, max = 25, value = 10, step = 1),
                             numericInput(inputId="rotation", label="Rotation Years", value = 25, min = 1, max = 50),
-                            numericInput(inputId="it", label="Iterations", value = 10, min = 1, max = 100),
+                            sliderInput("w.dist", "Winching distance", min = 0, max = 25, value = 10, step = 1),
                             checkboxInput("enrich.bosquete", "Enrichment of bosquetes", value = TRUE),
                             checkboxInput("dir.felling", label = 'Directional felling', value = TRUE),
+                            numericInput(inputId="it", label="Iterations", value = 10, min = 1, max = 100),
+                            textInput(inputId = 'scname', label = 'Scenario name', placeholder = 'Scenario name'),
+                            sliderInput(inputId = 'sy', label = "Simulation Years", min = 5, max = 50, value = 35, step = 1),
                             actionButton(inputId = "run",label =  "Run!", class = "btn-primary")
                ),
                
@@ -45,7 +46,7 @@ shinyApp(
                            # *** Main results tab ----
                            ###---
                            tabPanel(title = "Results",
-                                    h4("Table"),
+                                    h4("Plots"),
                                     #Summary Table of results
                                     tableOutput(outputId = 'table.summary'),
                                     #Button to download results data. Should only work if soimulation is done. Downloads only scenario table.
@@ -71,10 +72,7 @@ shinyApp(
                             h5("This tab allows for more control of simulation parameters.
                                For more information on each parameter see Manual")
                ),
-               mainPanel(radioButtons(inputId = "NHA_model", label = "Mortality model", choices = list("Linear model" = 1, "Non-linear model" = 2), selected = 1),
-                         textInput(inputId="theta", label="theta parameter", value = 0.0003),
-                         radioButtons(inputId = "V_model", label = "Volume model", choices = list("With PNHAN" = 1, "Without PNHAN" = 2), selected = 1),
-                         checkboxInput(inputId = 'ddiam', label = 'Construct diametric distribution', value = TRUE),
+               mainPanel(numericInput(inputId="lambda", label="lambda parameter", value = 70, min = 1, max = 200),
                          checkboxInput(inputId = 'comp', label = 'Make compatibility', value = TRUE)
                )
       ),
