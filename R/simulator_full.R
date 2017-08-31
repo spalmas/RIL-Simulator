@@ -17,8 +17,8 @@
 #' @param hurr.year year where a hurricane should occur, if desired
 #' @param hurr.cat category of the hurricane that occurs at hurr.year
 #'
-#' @references
-#' Ninguna por ahora
+#' @references Ninguna por ahora
+#' 
 #' @return a table with yearly results of BA (Basal Area in the stand), AGB (aboveground biomass in stand), INCOME, volume extracted, total sell price of products extraccted 
 #'
 #' @examples

@@ -5,10 +5,14 @@ rm(list=ls()) #will remove ALL objects
 
 library(grid)
 library(gridExtra)
-library(mgcv)
+library(mgcv) #Only for in.out function importFrom(mgdv, in.out) 
 library(shiny)
 library(tidyverse)
 library(truncnorm)
+
+regen.params <- read_csv('data/regenation_params.csv')
+diameter.eqs <- read_csv('data/RIL-tab-TNC-growth.csv')
+species <- read_csv('data/RIL-tab-species.csv')
 
 source('R/directional_mortality.R')
 source('R/do_enrichment.R')
@@ -27,11 +31,5 @@ source('R/mean_sd.R')
 source('R/mortality_calc.R')
 source('R/multiplot.R')
 source('R/skidding_mortality.R')
-source('R/stand_parameters_calc.R')
-#source('R/stand_randomizer.R')
 
-regen.params <- read.csv('data/regenation_params.csv', sep = ',')
-
-#source('R/simulator.R')
 source('R/simulator_full.R')
-
