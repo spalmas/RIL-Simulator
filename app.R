@@ -47,12 +47,10 @@ shinyApp(
                            ###---
                            tabPanel(title = "Results",
                                     h4("Plots"),
-                                    #Summary Table of results
-                                    tableOutput(outputId = 'table.summary'),
-                                    #Button to download results data. Should only work if soimulation is done. Downloads only scenario table.
-                                    downloadButton(outputId = 'downloadData', label =  'Download'),
-                                    #Plots
-                                    plotOutput(outputId = "plots")
+                                    plotOutput(outputId = "plots"),   #Plots
+                                    tableOutput(outputId = 'table.summary'),   #Summary Table of results
+                                    #Button to download results data. Should only work if simulation is done. Downloads only scenario table.
+                                    downloadButton(outputId = 'downloadData', label =  'Download')
                                     
                            ),
                            ###---
@@ -116,7 +114,6 @@ shinyApp(
                 enrich.bosquete = input$enrich.bosquete,
                 w.dist = input$w.dist,
                 dir.felling = input$dir.felling,
-                improved.trail = input$improved.trail,
                 trees.tab = trees.tab())
     })
     
@@ -130,7 +127,6 @@ shinyApp(
                 enrich.bosquete = FALSE,
                 w.dist = 0,
                 dir.felling = FALSE,
-                improved.trail = FALSE,
                 trees.tab = trees.tab())
     })
     
@@ -174,17 +170,17 @@ shinyApp(
         ylab(paste ("MgC")) +  #Y Label
         labs(title = 'Sequestered Carbon')
       
-      INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = factor(YEAR), y = INCOME, colour = SCENARIO)) +
-        geom_boxplot() +
-        #stat_ecdf() +
-        ggplot_params() + #General graph Parameters. Found in Helpers.R
-        scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
-        scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
-        xlab(paste ("Year")) +  # X Label
-        ylab(paste ("Thousands MXN")) +  #Y Label
-        labs(title = "Income")
+      #INCOME.plot <- ggplot(results[!is.na(results$INCOME),], aes(x = factor(YEAR), y = INCOME, colour = SCENARIO)) +
+      #  geom_boxplot() +
+      #  #stat_ecdf() +
+      #  ggplot_params() + #General graph Parameters. Found in Helpers.R
+      #  scale_colour_manual(values=line.colors, name = '') + #assigning colors to lines
+      #  scale_fill_manual(values=line.colors, name = '')  + #assigning colors to ribbons
+      #  xlab(paste ("Year")) +  # X Label
+      #  ylab(paste ("Thousands MXN")) +  #Y Label
+      #  labs(title = "Income")
       
-      multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, INCOME.plot, cols=2)
+      multiplot(BA.plot, AGB.plot, NET.SEQUESTERED.plot, cols=2)
       
     }, width = 1000, height = 800)
     
@@ -195,21 +191,17 @@ shinyApp(
                                         mean.sd(results.column = 'VOL.HARVESTED', data = SCENARIO.results()),
                                         mean.sd(results.column = 'EMISSIONS', data = SCENARIO.results()),
                                         mean.sd(results.column = 'EMISSIONSperm3', data = SCENARIO.results()),
-                                        mean.sd(results.column = 'INCOME', data = SCENARIO.results()),
-                                        
                                         mean.sd(results.column = 'N.HARVESTED', data = BAU.results()),
                                         mean.sd(results.column = 'VOL.HARVESTED', data = BAU.results()),
                                         mean.sd(results.column = 'EMISSIONS', data = BAU.results()),
-                                        mean.sd(results.column = 'EMISSIONSperm3', data = BAU.results()),
-                                        mean.sd(results.column = 'INCOME', data = BAU.results())
+                                        mean.sd(results.column = 'EMISSIONSperm3', data = BAU.results())
       ),
       ncol = 2)
       table.summary <- as.data.frame(table.summary)
       rownames(table.summary) <- c('Trees harvested / ha (All years)',
                                    'm3 Harvested / ha (All years)',
                                    'MgC Emissions from harvest (All years)',
-                                   'MgC Emissions per m3 harvested (All years)',
-                                   'Income (1000 MXN)')
+                                   'MgC Emissions per m3 harvested (All years)')
       colnames(table.summary) <- c('Scenario', 'BAU')
       
       #Emissions per m3 harvested

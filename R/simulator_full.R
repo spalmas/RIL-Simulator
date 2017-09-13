@@ -12,7 +12,6 @@
 #' @param enrich.bosquete The ejido performs enrichment bosquete planting (TRUE or FALSE)
 #' @param w.dist
 #' @param dir.felling
-#' @param improved.trail
 #' @param forest.tab Forest list of trees
 #' @param hurr.year year where a hurricane should occur, if desired
 #' @param hurr.cat category of the hurricane that occurs at hurr.year
@@ -32,7 +31,6 @@
 #'     enrich.bosquete = TRUE, 
 #'     w.dist = 10, 
 #'     dir.felling  = TRUE, 
-#'     improved.trail = TRUE, 
 #'     forest.tab  = forest.tab)
 #' View(table.results)
 #'
@@ -44,33 +42,29 @@ simulator <- function(scenario = 'A',
                       enrich.bosquete = FALSE, 
                       w.dist = 0, 
                       dir.felling = TRUE, 
-                      improved.trail = FALSE, 
                       forest.tab,
-                      hurr.year = NA,
-                      hurr.cat = NA){ 
+                      hurr.year = 0,
+                      hurr.cat = 0){ 
 
   ### TABLE TO STORE VALUES AND REPORT -----------
-  columns <- c('SCENARIO', 'IT', 'YEAR', 'BA', 'AGB', 'INCOME', 'N.HARVESTED', 'VOL.HARVESTED')
-  table.results <- matrix(ncol = length(columns), nrow = sy*it) %>% as_tibble()
-  colnames(table.results) <- columns
+  table.results <- matrix(nrow = sy*it) %>% as_tibble()
   #forest <- forest.randomizer()
-  
   table.results <- table.results %>% 
     mutate(SCENARIO = scenario,
+           IT = rep(1:it, times = sy) %>% sort,   #column of iteration
+           YEAR = rep(0:(sy-1), times = it),  #column of years
            N.HARVESTED = NA,
            VOL.HARVESTED = NA,
-           INCOME = NA,
-           IT = rep(1:it, times = sy) %>% sort,   #column of iteration
-           YEAR = rep(0:(sy-1), times = it)
+           INCOME = NA
            )
   
   #hurricane mortalities probabiilites table
-  hurr.mortalities <- tibble(small.mortality = c(0, 0.1, 0.2, 0.3), prob = c(0.55, 0.2, 0.15, 0.1))
+  hurr.mortalities <- tibble(category = c(0,3,4,5), prob = c(0.55, 0.2, 0.1, 0.05), small.mortality = c(0, 0.1, 0.2, 0.3))
   
   #LOOP OF SIMULATION YEARS AND ITERATIONS-----------
   for (i in 1:it){   #For each iteration
     #i=1
-    forest.tab <- forest.randomizer(ROTATIONYEARS = rotation)
+    #forest.tab <- forest.randomizer(ROTATIONYEARS = rotation)  #Randomizes every year
     forest <- forest.tab  #return to initial forest
     
     #AGB0 is the mean of the ACA AGB
@@ -86,19 +80,20 @@ simulator <- function(scenario = 'A',
   
       ######## NATURAL MORTALITY
       natural.dead <- forest %>% mortality.calc()    #T/F list if they died of natural causes
-      #forest.dead <- forest[natural.dead,]      #creating a dead list. For now there is no analysis with the forest.dead
+      n.trees.dead <- sum(natural.dead)      #creating a dead list. For now there is no analysis with the forest.dead
       forest <- forest[!natural.dead,]          #removing dead from alive forest
       
       ######## HURRICANES MORTALITY
       #If there is a valur for hurr.year and if it matches the y
-      if (!is.na(hurr.year) &  (hurr.year == y + 1)){
+      #if (!is.na(hurr.year) &  (hurr.year == y + 1)){
         #Use the hurr.cat value mortalities from table
-          small.mortality <- hurr.mortalities$small.mortality[hurr.cat - 3]
-        } else {
+      if (y+1 == hurr.year){ small.mortality <- (hurr.mortalities %>% filter(category == hurr.cat))$prob
+      } else {
           #Randomize a hurricane from table
           small.mortality <- sample(x = hurr.mortalities$small.mortality, prob = hurr.mortalities$prob, size = 1)
-        }
+      }
       hurricane.dead <- forest %>% hurricane.mortality(small.mortality = small.mortality)        #T/F list if they died from a hurricane
+      n.trees.dead <- n.trees.dead + sum(hurricane.dead) #total number of deaths
       #forest.dead <- forest.dead %>% bind_rows(forest[hurricane.dead,])     #Adding dead trees to dead  list 
       forest <- forest[!hurricane.dead,]          #removing dead from alive forest
       
@@ -107,7 +102,7 @@ simulator <- function(scenario = 'A',
 
       ####### REGENERATION
       #it only occurs every four years
-      if ( y %% 4 == 0){
+      if (y %% 4 == 0){
         regen.table <- forest %>% get.regeneration ()   #Regeration process
         forest <- forest %>% bind_rows(regen.table)  #adding the new trees to the forest
       } 
@@ -165,12 +160,13 @@ simulator <- function(scenario = 'A',
                   AGB = sum(AGB, na.rm = TRUE))
   
       ####### Storing stand results 
-      table.results[row.num,'BA'] <- ACA.parameters$BA %>% mean()  #Estimate Basal Area from the stand. Transform to square meters and by hectare
+      table.results[row.num,'BA'] <- ACA.parameters$BA %>% mean()  #Mean of ACA values
       table.results[row.num,'AGB'] <- ACA.parameters$AGB %>% mean()
       table.results[row.num,'EMISSIONS.HARVEST'] <- emissions.harvest*-1  #Estimate biomass from the stand harvest
       table.results[row.num,'EMISSIONS.SKIDDING'] <- emissions.skidding*-1  #Emissions from winching
-      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from directional felling
+      table.results[row.num,'EMISSIONS.DIRECTIONAL'] <- emissions.directional*-1  #Emissions from non-directional felling
       table.results[row.num,'SEQUESTERED'] <- AGB.sequestered  #Includes growth + recruitment + enrichment - mortality
+      table.results[row.num,'N.TREES.DEAD'] <- n.trees.dead/rotation  #Total number of deaths in year PER HECTARE
       #table.results[row.num,'HURRICANE'] <- hurricane.dead  #Add if this was a hurricane year
     }  
   }

@@ -21,7 +21,7 @@ get.harvest <- function(forest, intensity, ACA.){
     return(rep(c(FALSE), times = nrow(forest)))
     }
   
-  intensity.table <- data.frame(intensity = c('No logging', 'Low', 'BAU', 'High', 'All'),
+  intensity.table <- data.frame(intensity = c('No logging', 'Low', 'BAU', 'High', 'Highest'),
                                 perc_intensity = c(0, .25, .50, .75, 1))
 
 
