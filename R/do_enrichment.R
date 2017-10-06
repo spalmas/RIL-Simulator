@@ -5,6 +5,7 @@
 #'
 #' @param harvested Table of harvested trees
 #' @param ACA. Number of recently harvested ACA.
+#' @param area Area of plot
 #'
 #' @references
 #' Navarro-Martinez, el al. 2017
@@ -17,16 +18,19 @@
 #' forest$HARVESTED <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
 #' harvested <- forest[forest$HARVESTED,]
 #' do.enrichment(harvested = harvested, ACA  = 1)
-do.enrichment <- function(harvested, ACA.){
+do.enrichment <- function(harvested, ACA., area){
   #If the ejidos enrich their bosquetes the number of bosquet. 
   #One bosquete will be created for each 3 trees harvested
 
+  CF <- 10000/area
+  
   #Estimating the number of new seedlings
-  n.seedlings <- harvested %>% nrow() %>% prod(., 1/3) %>%     #one bosquete at for each 3 harvested trees 
+  n.seedlings <- harvested %>% nrow() %>% prod(., CF, 1/3) %>%     #one bosquete at for each 3 harvested trees by hectare
     rlnorm(n = ., mean = 0.1, sd = 0.039) %>%  #randomized area (ha), n is decimal, but it rounds as floor
     log() %>% 
     sum() %>%   #adding the area of all randomized bosquetes
-    prod(., rnorm(n = 1, mean = 2000, sd = 600), .7 ) %>%    #a mean of 2000 seedlings per hectare and reducing to 70% because not all area of bosquete is used
+    #prod(., rnorm(n = 1, mean = 2000/CF, sd = 600), .7 ) %>%    #a mean of 2000 seedlings per hectare and reducing to 70% because not all area of bosquete is used
+    prod(., 2000, .7 , 1/CF) %>%    #2000 seedlings, Only 70% of bosquete is planted, only 1/CF is modeled
     round()   #integer number of new seedlings.
   
   #Something to avoid errors. It is horrible I know

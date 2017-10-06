@@ -12,7 +12,7 @@
 #' @examples
 #' source('startup.R')
 #' forest <- forest.randomizer(ROTATIONYEARS = 2)
-#' harvested.list <- get.harvest(forest = forest, intensity = 'All', ACA. = 0)
+#' harvested.list <- get.harvest(forest = forest, intensity = 'Highest', ACA. = 0)
 #' forest[harvested.list,]
 
 get.harvest <- function(forest, intensity, ACA.){
@@ -39,7 +39,7 @@ get.harvest <- function(forest, intensity, ACA.){
   #TRUE/FALSE which of the harvestable trees are the n.harvestable biggest trees
   biggest.harvested <- forest[forest$harvestable,]$DBH %>% order(decreasing = TRUE) <= n.harvestable
   
-  #TRUE/FALSE. Getting rownames of the trees to be harvested
+  #TRUE/FALSE. Getting bool list of the trees to be harvested
   harvested <- rownames(forest) %in% which(forest$harvestable)[biggest.harvested]
   
   return(harvested)

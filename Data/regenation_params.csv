@@ -1,110 +1,98 @@
-SPECIES.NAME,SPECIES.CODE,CANOPY.COVER,REG.N.HA.MEAN,REG.N.HA.SD
-Bayo,AC,999,239.5762473,678.5800509
-Bayo,AC,50,0,0
-Bayo,AC,55,0,0
-Bayo,AC,60,0,0
-Bayo,AC,65,151.4285714,159.5913148
-Bayo,AC,70,1192.826618,1603.490112
-Bayo,AC,75,384.4497837,574.6968134
-Bayo,AC,80,153.462689,95.54721272
-Bayo,AC,85,34.44231662,37.60558781
-Caoba,SM,999,4.965498996,10.99830418
-Caoba,SM,50,0,0
-Caoba,SM,55,0,0
-Caoba,SM,60,19.76190476,22.68536644
-Caoba,SM,65,2.564102564,6.28074293
-Caoba,SM,70,10.27221298,11.99902621
-Caoba,SM,75,5.736022945,5.327938375
-Caoba,SM,80,1.389748718,1.53637767
-Caoba,SM,85,0,0
-Chaca roja,BS,999,44.40961374,124.52203
-Chaca roja,BS,50,25,61.23724357
-Chaca roja,BS,55,0,0
-Chaca roja,BS,60,0,0
-Chaca roja,BS,65,84.28571429,76.31834508
-Chaca roja,BS,70,218.6050061,296.1174541
-Chaca roja,BS,75,13.77735894,8.726110196
-Chaca roja,BS,80,10.79758558,17.48502314
-Chaca roja,BS,85,2.81124498,6.886115743
-Chaktekok,SS,999,44.61736845,175.268239
-Chaktekok,SS,50,0,0
-Chaktekok,SS,55,0,0
-Chaktekok,SS,60,242.8571429,475.2657688
-Chaktekok,SS,65,53.35775336,69.12502988
-Chaktekok,SS,70,37.94089839,29.26262972
-Chaktekok,SS,75,12.56413566,7.041312311
-Chaktekok,SS,80,3.787857901,3.729013854
-Chaktekok,SS,85,6.43115942,10.8500731
-Chechen,MB,999,44.61736845,175.268239
-Chechen,MB,50,0,0
-Chechen,MB,55,0,0
-Chechen,MB,60,242.8571429,475.2657688
-Chechen,MB,65,53.35775336,69.12502988
-Chechen,MB,70,37.94089839,29.26262972
-Chechen,MB,75,12.56413566,7.041312311
-Chechen,MB,80,3.787857901,3.729013854
-Chechen,MB,85,6.43115942,10.8500731
-Katalox,SC,999,6.343241971,11.77795276
-Katalox,SC,50,8.333333333,20.41241452
-Katalox,SC,55,0,0
-Katalox,SC,60,0,0
-Katalox,SC,65,0,0
-Katalox,SC,70,3.187029701,3.556708442
-Katalox,SC,75,9.37414756,6.84510698
-Katalox,SC,80,8.533562279,5.063964247
-Katalox,SC,85,21.31786289,18.83419746
-Machiche,LC,999,16.07358821,30.1228424
-Machiche,LC,50,25,61.23724357
-Machiche,LC,55,0,0
-Machiche,LC,60,17.85714286,40.34291785
-Machiche,LC,65,34.17613815,28.78674348
-Machiche,LC,70,26.71030695,22.58294869
-Machiche,LC,75,19.2895622,15.30841008
-Machiche,LC,80,5.555555556,13.60827635
-Machiche,LC,85,0,0
-Pasaak,SG,999,16.4626208,41.17289402
-Pasaak,SG,50,0,0
-Pasaak,SG,55,0,0
-Pasaak,SG,60,49.04761905,80.21230333
-Pasaak,SG,65,44.04761905,78.81995327
-Pasaak,SG,70,9.343068132,10.11700619
-Pasaak,SG,75,10.43712246,5.11326051
-Pasaak,SG,80,13.13596656,5.094053023
-Pasaak,SG,85,5.68957115,6.265505486
-Pelmax,AM,999,13.19360034,30.80258814
-Pelmax,AM,50,8.333333333,20.41241452
-Pelmax,AM,55,0,0
-Pelmax,AM,60,33.33333333,81.64965809
-Pelmax,AM,65,4.761904762,11.66423687
-Pelmax,AM,70,7.801332034,6.613913589
-Pelmax,AM,75,17.40014114,14.54171221
-Pelmax,AM,80,14.62384205,12.42115714
-Pelmax,AM,85,19.29491603,19.42446866
-Ramon,BA,999,8.946947116,15.50908781
-Ramon,BA,50,0,0
-Ramon,BA,55,0,0
-Ramon,BA,60,0,0
-Ramon,BA,65,12.3015873,26.7861552
-Ramon,BA,70,10.75917748,14.09326449
-Ramon,BA,75,14.06523699,17.92355047
-Ramon,BA,80,19.91253812,14.64944768
-Ramon,BA,85,14.53703704,17.03452075
-Sacchacah,DA,999,36.73605255,74.48866481
-Sacchacah,DA,50,0,0
-Sacchacah,DA,55,0,0
-Sacchacah,DA,60,66.66666667,163.2993162
-Sacchacah,DA,65,82.14285714,98.12008469
-Sacchacah,DA,70,31.46576118,42.64180662
-Sacchacah,DA,75,59.64347754,61.23987001
-Sacchacah,DA,80,30.46925528,26.21156937
-Sacchacah,DA,85,23.50040258,43.56781599
-Zapote,MZ,999,111.7145683,109.5581543
-Zapote,MZ,50,0,0
-Zapote,MZ,55,0,0
-Zapote,MZ,60,13.80952381,21.41269253
-Zapote,MZ,65,81.10500611,65.72968085
-Zapote,MZ,70,165.7976567,107.0483543
-Zapote,MZ,75,200.8751153,51.04815669
-Zapote,MZ,80,212.2497147,43.07132696
-Zapote,MZ,85,219.8795297,101.6453214
-,XX,999,48.97139302,223.1701903
+SPECIES,SPECIES.NAME,SPECIES.CODE,CANOPY.COVER,REG.N.HA.MEAN,REG.N.HA.SD
+\textit{Aspidosperma cruentum},Bayo,ASCR,999,239.5762473,678.5800509
+\textit{Aspidosperma cruentum},Bayo,ASCR,50,0,0
+\textit{Aspidosperma cruentum},Bayo,ASCR,60,0,0
+\textit{Aspidosperma cruentum},Bayo,ASCR,65,151.4285714,159.5913148
+\textit{Aspidosperma cruentum},Bayo,ASCR,70,1192.826618,1603.490112
+\textit{Aspidosperma cruentum},Bayo,ASCR,75,384.4497837,574.6968134
+\textit{Aspidosperma cruentum},Bayo,ASCR,80,153.462689,95.54721272
+\textit{Aspidosperma cruentum},Bayo,ASCR,85,34.44231662,37.60558781
+\textit{Swietenia macrophylla},Caoba,SWMA,999,4.965498996,10.99830418
+\textit{Swietenia macrophylla},Caoba,SWMA,50,0,0
+\textit{Swietenia macrophylla},Caoba,SWMA,60,19.76190476,22.68536644
+\textit{Swietenia macrophylla},Caoba,SWMA,65,2.564102564,6.28074293
+\textit{Swietenia macrophylla},Caoba,SWMA,70,10.27221298,11.99902621
+\textit{Swietenia macrophylla},Caoba,SWMA,75,5.736022945,5.327938375
+\textit{Swietenia macrophylla},Caoba,SWMA,80,1.389748718,1.53637767
+\textit{Swietenia macrophylla},Caoba,SWMA,85,0,0
+\textit{Bursera simarouba},Chaca roja,BUSI,999,44.40961374,124.52203
+\textit{Bursera simarouba},Chaca roja,BUSI,50,25,61.23724357
+\textit{Bursera simarouba},Chaca roja,BUSI,60,0,0
+\textit{Bursera simarouba},Chaca roja,BUSI,65,84.28571429,76.31834508
+\textit{Bursera simarouba},Chaca roja,BUSI,70,218.6050061,296.1174541
+\textit{Bursera simarouba},Chaca roja,BUSI,75,13.77735894,8.726110196
+\textit{Bursera simarouba},Chaca roja,BUSI,80,10.79758558,17.48502314
+\textit{Bursera simarouba},Chaca roja,BUSI,85,2.81124498,6.886115743
+\textit{Sickingia salvadorensis},Chaktekok,SISA,999,44.61736845,175.268239
+\textit{Sickingia salvadorensis},Chaktekok,SISA,50,0,0
+\textit{Sickingia salvadorensis},Chaktekok,SISA,60,242.8571429,475.2657688
+\textit{Sickingia salvadorensis},Chaktekok,SISA,65,53.35775336,69.12502988
+\textit{Sickingia salvadorensis},Chaktekok,SISA,70,37.94089839,29.26262972
+\textit{Sickingia salvadorensis},Chaktekok,SISA,75,12.56413566,7.041312311
+\textit{Sickingia salvadorensis},Chaktekok,SISA,80,3.787857901,3.729013854
+\textit{Sickingia salvadorensis},Chaktekok,SISA,85,6.43115942,10.8500731
+\textit{Metopium brownei},Chechen,MEBR,999,44.61736845,175.268239
+\textit{Metopium brownei},Chechen,MEBR,50,0,0
+\textit{Metopium brownei},Chechen,MEBR,60,242.8571429,475.2657688
+\textit{Metopium brownei},Chechen,MEBR,65,53.35775336,69.12502988
+\textit{Metopium brownei},Chechen,MEBR,70,37.94089839,29.26262972
+\textit{Metopium brownei},Chechen,MEBR,75,12.56413566,7.041312311
+\textit{Metopium brownei},Chechen,MEBR,80,3.787857901,3.729013854
+\textit{Metopium brownei},Chechen,MEBR,85,6.43115942,10.8500731
+\textit{Swartzia cubensis},Katalox,SWCU,999,6.343241971,11.77795276
+\textit{Swartzia cubensis},Katalox,SWCU,50,8.333333333,20.41241452
+\textit{Swartzia cubensis},Katalox,SWCU,60,0,0
+\textit{Swartzia cubensis},Katalox,SWCU,65,0,0
+\textit{Swartzia cubensis},Katalox,SWCU,70,3.187029701,3.556708442
+\textit{Swartzia cubensis},Katalox,SWCU,75,9.37414756,6.84510698
+\textit{Swartzia cubensis},Katalox,SWCU,80,8.533562279,5.063964247
+\textit{Swartzia cubensis},Katalox,SWCU,85,21.31786289,18.83419746
+\textit{Lonchocarpus castilloi},Machiche,LOCA,999,16.07358821,30.1228424
+\textit{Lonchocarpus castilloi},Machiche,LOCA,50,25,61.23724357
+\textit{Lonchocarpus castilloi},Machiche,LOCA,60,17.85714286,40.34291785
+\textit{Lonchocarpus castilloi},Machiche,LOCA,65,34.17613815,28.78674348
+\textit{Lonchocarpus castilloi},Machiche,LOCA,70,26.71030695,22.58294869
+\textit{Lonchocarpus castilloi},Machiche,LOCA,75,19.2895622,15.30841008
+\textit{Lonchocarpus castilloi},Machiche,LOCA,80,5.555555556,13.60827635
+\textit{Lonchocarpus castilloi},Machiche,LOCA,85,0,0
+\textit{Simarouba glauca},Pasaak,SIGL,999,16.4626208,41.17289402
+\textit{Simarouba glauca},Pasaak,SIGL,50,0,0
+\textit{Simarouba glauca},Pasaak,SIGL,60,49.04761905,80.21230333
+\textit{Simarouba glauca},Pasaak,SIGL,65,44.04761905,78.81995327
+\textit{Simarouba glauca},Pasaak,SIGL,70,9.343068132,10.11700619
+\textit{Simarouba glauca},Pasaak,SIGL,75,10.43712246,5.11326051
+\textit{Simarouba glauca},Pasaak,SIGL,80,13.13596656,5.094053023
+\textit{Simarouba glauca},Pasaak,SIGL,85,5.68957115,6.265505486
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,999,13.19360034,30.80258814
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,50,8.333333333,20.41241452
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,60,33.33333333,81.64965809
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,65,4.761904762,11.66423687
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,70,7.801332034,6.613913589
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,75,17.40014114,14.54171221
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,80,14.62384205,12.42115714
+\textit{Aspidosperma megalocarpon},Pelmax,ASME,85,19.29491603,19.42446866
+\textit{Brosimum alicastrum},Ramon,BRAL,999,8.946947116,15.50908781
+\textit{Brosimum alicastrum},Ramon,BRAL,50,0,0
+\textit{Brosimum alicastrum},Ramon,BRAL,60,0,0
+\textit{Brosimum alicastrum},Ramon,BRAL,65,12.3015873,26.7861552
+\textit{Brosimum alicastrum},Ramon,BRAL,70,10.75917748,14.09326449
+\textit{Brosimum alicastrum},Ramon,BRAL,75,14.06523699,17.92355047
+\textit{Brosimum alicastrum},Ramon,BRAL,80,19.91253812,14.64944768
+\textit{Brosimum alicastrum},Ramon,BRAL,85,14.53703704,17.03452075
+\textit{Dendropanax arboreus},Sacchacah,DEAR,999,36.73605255,74.48866481
+\textit{Dendropanax arboreus},Sacchacah,DEAR,50,0,0
+\textit{Dendropanax arboreus},Sacchacah,DEAR,60,66.66666667,163.2993162
+\textit{Dendropanax arboreus},Sacchacah,DEAR,65,82.14285714,98.12008469
+\textit{Dendropanax arboreus},Sacchacah,DEAR,70,31.46576118,42.64180662
+\textit{Dendropanax arboreus},Sacchacah,DEAR,75,59.64347754,61.23987001
+\textit{Dendropanax arboreus},Sacchacah,DEAR,80,30.46925528,26.21156937
+\textit{Dendropanax arboreus},Sacchacah,DEAR,85,23.50040258,43.56781599
+\textit{Manilkara zapota},Zapote,MAZA,999,111.7145683,109.5581543
+\textit{Manilkara zapota},Zapote,MAZA,50,0,0
+\textit{Manilkara zapota},Zapote,MAZA,60,13.80952381,21.41269253
+\textit{Manilkara zapota},Zapote,MAZA,65,81.10500611,65.72968085
+\textit{Manilkara zapota},Zapote,MAZA,70,165.7976567,107.0483543
+\textit{Manilkara zapota},Zapote,MAZA,75,200.8751153,51.04815669
+\textit{Manilkara zapota},Zapote,MAZA,80,212.2497147,43.07132696
+\textit{Manilkara zapota},Zapote,MAZA,85,219.8795297,101.6453214
+XX,,XXXX,999,48.97139302,223.1701903

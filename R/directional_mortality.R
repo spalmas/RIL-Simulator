@@ -6,6 +6,7 @@
 #'
 #' @param forest The table of trees in the forest
 #' @param harvested table of harvested trees
+#' @param dir.felling bool. If directional felling is applied
 #'
 #' @references
 #' Ninguna por ahora
@@ -23,10 +24,12 @@
 #' killed.trees <- forestkilled.directional,]
 
 
-directional.mortality <- function(forest, harvested){
+directional.mortality <- function(forest, harvested, dir.felling = FALSE){
   vecinity <- rep(x = c(FALSE), times = nrow(forest))
   
-  if (nrow(harvested) != 0){    #If there are trees harvested
+  if(!dir.felling){
+    return(vecinity)
+  } else if (nrow(harvested) != 0){    #If there are trees harvested
     for (i in 1:nrow(harvested)){    #For each harvested tree
       vecinity.i <- rep(x = c(FALSE), times = nrow(forest))
       
@@ -48,9 +51,6 @@ directional.mortality <- function(forest, harvested){
                                  replace = TRUE,
                                  size = sum(vecinity))
   }
-  
-  
-  
   #remove trees that were inside rectangles
   return(vecinity)
 }

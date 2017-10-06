@@ -13,7 +13,7 @@
 get.price <- function(stand){
   #dataframe of species code names and its prices. In a good simulation model,
   #this should be allowed to be input by the user. Maybe later
-  prices <- data.frame(SPECIES.CODE = c('SM', 'LL', 'MB', 'MZ', 'PU', 'XX'),
+  prices <- data.frame(SPECIES.CODE = c('SWMA', 'LYLA', 'MEBR', 'MAZA', 'POUN', 'XXXX'),
                        PRICE = c(3.5, 1.8, 1.5, 1.8, 2.0, 1.0))
   
   #Assigning price of prices per cubic meter
