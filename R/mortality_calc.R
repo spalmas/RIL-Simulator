@@ -14,15 +14,13 @@
 #' mortality.calc(forest)
 #' 
 mortality.calc <- function(forest){
-  
   #cretes an empty array of FALSE with the length of the stand
-  natural.dead <- rep(x = c(FALSE), times = nrow(forest))
-  
+  #natural.dead <- rep(x = c(FALSE), times = nrow(forest))
   #trees smaller than 10cm have a 3% of mortality probability
-  natural.dead [forest$DBH < 10] <- sample(x = c(TRUE, FALSE), prob = c(0.03, 0.97), replace = TRUE, size = sum(forest$DBH < 10))
-  
+  #natural.dead [forest$DBH < 10] <- sample(x = c(TRUE, FALSE), prob = c(0.03, 0.97), replace = TRUE, size = sum(forest$DBH < 10))
   #trees larger than 10cm have a 1% of mortality probability
-  natural.dead [forest$DBH >= 10] <- sample(x = c(TRUE, FALSE), prob = c(0.01, 0.99), replace = TRUE, size = sum(forest$DBH >= 10))
+  #natural.dead [forest$DBH >= 10] <- sample(x = c(TRUE, FALSE), prob = c(0.01, 0.99), replace = TRUE, size = sum(forest$DBH >= 10))
+  natural.dead <- sample(x = c(TRUE, FALSE), prob = c(0.03, 0.97), replace = TRUE, size = nrow(forest))
   
   return(natural.dead)
 }

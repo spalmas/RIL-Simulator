@@ -25,14 +25,15 @@
 #' source('startup.R')
 #' rotation <- 25
 #' forest.tab <- forest.randomizer(ROTATIONYEARS = rotation)
-#' table.results <- simulator(sy = 25, 
+#' table.results <- simulator(sy = 50, 
 #'     it = 3,
 #'     rotation = rotation, 
-#'     intensity = 'All',
-#'     enrich.bosquete = TRUE, 
-#'     w.dist = 10, 
-#'     dir.felling  = TRUE, 
-#'     forest.tab  = forest.tab)
+#'     intensity = 'Highest',
+#'     enrich.bosquete = FALSE, 
+#'     w.dist = 0, 
+#'     dir.felling  = FALSE, 
+#'     forest.tab  = forest.tab,
+#'     area = 1500)
 #' View(table.results)
 #'
 simulator <- function(scenario = 'A',
@@ -47,7 +48,7 @@ simulator <- function(scenario = 'A',
                       forest.tab,
                       hurr.year = 0,
                       hurr.cat = 0){ 
-
+  
   #Correction Factor to hectare
   CF = 10000/area 
   
@@ -58,7 +59,7 @@ simulator <- function(scenario = 'A',
            YEAR = rep(0:(sy-1), times = it),  #column of years
            N.HARVESTED = NA,
            VOL.HARVESTED = NA
-           )
+    )
   
   #hurricane mortalities probabiilites table
   hurr.mortalities <- tibble(category = c(0,3,4,5), prob = c(0.55, 0.2, 0.1, 0.05), small.mortality = c(0, 0.1, 0.2, 0.3))
@@ -70,8 +71,7 @@ simulator <- function(scenario = 'A',
     forest <- forest.tab  #return to initial forest
     
     #Random
-    #rand.ACA <- tibble(ACA = unique(forest$ACA), ACA2 = sample(unique(forest$ACA)))
-    forest$ACA <- sample(forest$ACA)
+    forest$ACA <- sample(forest$ACA, replace = TRUE)
     
     #AGB0 is the mean of the ACA AGB. Not by hectare
     forest.parameters <- forest %>% 
@@ -84,49 +84,49 @@ simulator <- function(scenario = 'A',
     BA0 <- forest.parameters$BA[1]
     AGB0 <- forest.parameters$AGB[1]
     
+    ACA <- 0 #reset ACA
+    
     for (y in 0:(sy-1)){   #For each simulation year
       #y <- 0
       #row number based on the repetition and simulation year for table of results
       row.num <- (y + 1) + (i - 1) * sy
-
+      
       #Get ACA from the year and rotation years
-      ACA <- y -  rotation*(floor(y/rotation))
+      if (ACA == rotation){ACA <- 0}
       
       ######## NATURAL MORTALITY
       natural.dead <- forest %>% mortality.calc()    #T/F list if they died of natural causes
-      n.trees.dead <- sum(natural.dead)      #creating a dead list. For now there is no analysis with the forest.dead
 
       ######## HURRICANES MORTALITY
       #If there is a valur for hurr.year and if it matches the y
       #if (!is.na(hurr.year) &  (hurr.year == y + 1)){
-        #Use the hurr.cat value mortalities from table
+      #Use the hurr.cat value mortalities from table
       if (y+1 == hurr.year){ 
         small.mortality <- (hurr.mortalities %>% filter(category == hurr.cat))$prob
       } else {
-          #Randomize a hurricane from table
-          #small.mortality <- sample(x = hurr.mortalities$small.mortality, prob = hurr.mortalities$prob, size = 1)
-          small.mortality <- 0
+        #Randomize a hurricane from table
+        #small.mortality <- sample(x = hurr.mortalities$small.mortality, prob = hurr.mortalities$prob, size = 1)
+        small.mortality <- 0
       }
       hurricane.dead <- forest %>% hurricane.mortality(small.mortality = small.mortality)        #T/F list if they died from a hurricane
-      n.trees.dead <- n.trees.dead + sum(hurricane.dead) #total number of deaths
       #forest.dead <- forest.dead %>% bind_rows(forest[hurricane.dead,])     #Adding dead trees to dead  list 
       forest <- forest[!(hurricane.dead | natural.dead),]          #removing dead from alive forest
+
+      #total number of trees dead
+      n.trees.dead <-  sum(natural.dead) + sum(hurricane.dead) #total number of deaths
       
       ####### GROWTH FUNCTION
       forest <- forest %>% get.diameter.growth()   #randomized diameter growth
-
+      
       ####### REGENERATION
       #it only occurs every four years
       #if (y %% 4 == 0){
-        regen.table <- forest %>% get.regeneration (area = area)   #Regeration process
-        forest <- forest %>% bind_rows(regen.table)  #adding the new trees to the forest
+      regen.table <- forest %>% get.regeneration (area = area)   #Regeration process
+      forest <- forest %>% bind_rows(regen.table)  #adding the new trees to the forest
       #} 
       
-      ####### BIOMASS PER HECTARE (IS AFTER NATURAL PROCESSES AND BEFORE HARVEST)
-      forest$AGB <- get.agb(forest = forest) #a new estiamate of biomass. Not by hectare
-      
       ####### DEFAULT VALUES FOR SOME VARIABLES. WILL NOT CHANGE IF THIS IS NOT A HARVESTING YEAR IN THE ROTATION.
-      emissions.harvest <- NA; emissions.skidding <- NA; emissions.directional <- NA
+      #emissions.harvest <- NA; emissions.skidding <- NA; emissions.directional <- NA
       
       ####### HARVESTING TREES. Since harvesting trees already occurs only at one plot,
       #harvested values are already in one hectare scale because it only cuts one ACA
@@ -134,29 +134,31 @@ simulator <- function(scenario = 'A',
       harvested <- forest[harvested.bool,]   #Getting a harvested tree list
       harvested$VOLUME <- (harvested %>% get.volume())     #Get total volume harvested. Not by hectare. Transformed below
       #harvested$PRICE <- harvested %>% get.price()       #Assigning price to each tree
-
+      
       #Adding result numbers to table of results.
       #table.results$INCOME[row.num] <- sum(harvested$PRICE, na.rm = TRUE)  #All income from trees harvested in that year
-
+      
       ####### DO SKIDDING MORTALITY
       #Should be in hectare basis because harvested only comes from one ACA
       skidding.dead.bool <- skidding.mortality(forest = forest, w.dist = w.dist, harvested = harvested)  ##kills inside area and small trees (< 20cm DBH)
-
+      
       ####### HAVE DIRECTIONAL MORTALITY OF dir.felling is FALSE
       directional.dead.bool <- directional.mortality(forest = forest, harvested = harvested, dir.felling = dir.felling)    #directinonal felling mortality
-
+      
       #Removing all killed trees from the forest
       forest <- forest[!(harvested.bool | skidding.dead.bool | directional.dead.bool),]
-
+      
       # Final emissions
-      emissions.operations <- forest[directional.dead.bool | skidding.dead.bool | harvested.bool,]$AGB %>% sum(na.rm = TRUE) # directional felling mortality emissions
+      #emissions.operations <- forest[directional.dead.bool | skidding.dead.bool | harvested.bool,]$AGB %>% sum(na.rm = TRUE) # directional felling mortality emissions
       
       ####### DO ENRICHMENT PLANTING
       if (enrich.bosquete){
-        #ACA <- 1
-        enrichment.table <- do.enrichment(harvested = harvested, ACA. = ACA, area) #IT MAY RETURN ACU FROM PREVIOUS CYCLE IF NO WERE CUT
+        enrichment.table <- do.enrichment(harvested = harvested, ACA. = ACA, area)
         forest <- forest %>% bind_rows(enrichment.table)  #adding the new trees to the stand
       }
+      
+      ####### BIOMASS PER HECTARE (AT THE END OF MORTALITY, RECRUITMENT AND HARVEST)
+      forest$AGB <- get.agb(forest = forest) #a new estiamate of biomass. Not by hectare
       
       ####### computing final forest values. Unit: area. These are NOT corrected to HA
       forest.parameters <- forest %>% group_by(ACA) %>% 
@@ -164,7 +166,7 @@ simulator <- function(scenario = 'A',
                   AGB = sum(AGB, na.rm = TRUE)) %>% 
         summarise(BA = mean(BA),
                   AGB = mean(AGB))
-
+      
       ####### Storing stand results. They should by hectare units
       table.results[row.num, 'N.HARVESTED'] <- nrow(harvested) * CF  #Number of extracted trees
       table.results[row.num, 'VOL.HARVESTED'] <- sum(harvested$VOLUME, na.rm = TRUE) * CF  #All volume extacted in that year
@@ -172,16 +174,16 @@ simulator <- function(scenario = 'A',
       table.results[row.num, 'AGB0'] <- AGB0 * CF #by hectare
       table.results[row.num, 'BA1'] <- forest.parameters$BA[1] * CF  #Mean of ACA values by hectare
       table.results[row.num, 'AGB1'] <- forest.parameters$AGB[1] * CF #by hectare
-      table.results[row.num, 'EMISSIONS'] <- emissions.operations * CF  #Estimate biomass from the stand harvest by hectare
+      #table.results[row.num, 'EMISSIONS'] <- emissions.operations * CF  #Estimate biomass from the stand harvest by hectare
       #table.results$N.TREES.DEAD[row.num] <- CF * n.trees.dead/rotation  #Total number of deaths in year by hectare
       #table.results[row.num,'HURRICANE'] <- hurricane.dead  #Add if this was a hurricane year
-      
-      
+
       ####### UPDATING VALUES
       BA0 <- forest.parameters$BA[1]
       AGB0 <- forest.parameters$AGB[1]
+      ACA <- ACA + 1 
     }  
-      }
+  }
   
   #Estimate the total Emissions per hectare for each year
   table.results <- table.results %>% mutate(

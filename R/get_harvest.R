@@ -12,18 +12,15 @@
 #' @examples
 #' source('startup.R')
 #' forest <- forest.randomizer(ROTATIONYEARS = 2)
-#' harvested.list <- get.harvest(forest = forest, intensity = 'Highest', ACA. = 0)
+#' harvested.list <- get.harvest(forest = forest, intensity = 'High', ACA. = 0)
 #' forest[harvested.list,]
-
 get.harvest <- function(forest, intensity, ACA.){
   
   if (intensity == 'No logging'){
     return(rep(c(FALSE), times = nrow(forest)))
     }
   
-  intensity.table <- data.frame(intensity = c('No logging', 'Low', 'BAU', 'High', 'Highest'),
-                                perc_intensity = c(0, .25, .50, .75, 1))
-
+  intensity.table <- data.frame(intensity = c('Low', 'BAU', 'High', 'Highest'), perc_intensity = c(.25, .50, .75, 1))
 
   #Getting the percent of trees to be harvested
   perc_intensity <-  intensity.table$perc_intensity[intensity.table$intensity == intensity]
@@ -37,7 +34,7 @@ get.harvest <- function(forest, intensity, ACA.){
   n.harvestable <-  ((forest$harvestable %>% sum) * perc_intensity) %>% floor()
 
   #TRUE/FALSE which of the harvestable trees are the n.harvestable biggest trees
-  biggest.harvested <- forest[forest$harvestable,]$DBH %>% order(decreasing = TRUE) <= n.harvestable
+  biggest.harvested <- (forest[forest$harvestable,]$DBH %>% order(decreasing = TRUE)) [0:n.harvestable]
   
   #TRUE/FALSE. Getting bool list of the trees to be harvested
   harvested <- rownames(forest) %in% which(forest$harvestable)[biggest.harvested]

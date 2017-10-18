@@ -22,10 +22,8 @@
 #' killed.directional <- directional.mortality(forest = forest, harvested = harvested)
 #' killed.directional
 #' killed.trees <- forestkilled.directional,]
-
-
 directional.mortality <- function(forest, harvested, dir.felling = FALSE){
-  vecinity <- rep(x = c(FALSE), times = nrow(forest))
+  vecinity <- rep(x = c(FALSE), times = nrow(forest)) #empty vector
   
   if(!dir.felling){
     return(vecinity)
@@ -34,9 +32,8 @@ directional.mortality <- function(forest, harvested, dir.felling = FALSE){
       vecinity.i <- rep(x = c(FALSE), times = nrow(forest))
       
       #See if each tree in the stand is close to the harvested tree
-      #Close = less than half the height?
       vecinity.i <- (forest$COORD.X - harvested$COORD.X[i])**2 + 
-        (forest$COORD.Y-harvested$COORD.Y[i])**2 < (harvested$HEIGHT[i]/2)**2
+        (forest$COORD.Y-harvested$COORD.Y[i])**2 < (harvested$HEIGHT[i])**2
       
       #Adding those in the vecinity to those estimated before
       vecinity <- vecinity | vecinity.i 
