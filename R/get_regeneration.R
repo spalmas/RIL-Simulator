@@ -19,12 +19,10 @@
 #' get.regeneration(forest)
 
 get.regeneration <- function(forest, area = 10000){
-  
   CF <- 10000/area
   list.canopy.cover <- unique(regen.params$CANOPY.COVER)[2:9]  #list of possible canopy.cover values
   
-  regen.table <- tibble(SPECIES.CODE = NA, ACA = NA, DBH = NA, HEIGHT = NA, AGB = NA, UNDER.BOSQUETE = NA,
-                        COORD.X = NA, COORD.Y = NA, HARVESTED = NA)
+  regen.table <- tibble(SPECIES.CODE = NA, ACA = NA)
   for (ACA. in unique(forest$ACA)){
     #ACA. <- 0
     ACA.stand <- forest %>% filter(ACA == ACA.)
@@ -53,23 +51,24 @@ get.regeneration <- function(forest, area = 10000){
 
     #only if there are new trees in the ACA
     if (forest.regen.n > 0){
-      
       #Creating list of species
       SPECIES.CODE <- rep(x = regen.params.subset$SPECIES.CODE, times = regen.n)
-      DBH <- 3 + (rexp(n = length(SPECIES.CODE)))/2   #
-      HEIGHT <- get.height(DBH)
       #HEIGHT[HEIGHT < 0] <- 5  #No trees under 5 cm, maybe we need a change in distribution NOT NEEDED?
-      DIAMETER.GROWTH <- rep(x = NA, times = forest.regen.n)   #no initial DIAMETER.GROWTH. Just added for the column
       #regen.table$VOLUME <- get.volume(regen.table)
-      UNDER.BOSQUETE <- rep(x = c(FALSE), times = forest.regen.n)
-      COORD.X <- runif(n = forest.regen.n, min = 0, max = 99)
-      COORD.Y <- runif(n = forest.regen.n, min = 0, max = 99)
-      HARVESTED <- rep(x = c(FALSE), times = forest.regen.n)
-      regen.ACA <- tibble(ACA = ACA., SPECIES.CODE, DBH, HEIGHT, UNDER.BOSQUETE, COORD.X, COORD.Y, HARVESTED)
-      regen.ACA$AGB <- NA
+      regen.ACA <- tibble(ACA = ACA., SPECIES.CODE)
       regen.table <- rbind(regen.table, regen.ACA)
     }
   }
+  
+  regen.table$DBH <- 3 + (rexp(n = nrow(regen.table)))/2   #a minimum of 3
+  regen.table$AGB <- NA
+  regen.table$DIAMETER.GROWTH <- NA
+  regen.table$UNDER.BOSQUETE <- NA
+  regen.table$COORD.X <- runif(n = nrow(regen.table), min = 0, max = 99)
+  regen.table$COORD.Y <- runif(n = nrow(regen.table), min = 0, max = 99)
+  regen.table$HEIGHT <- get.height(regen.table$DBH)
+  regen.table$HARVESTED <- NA
+  
   regen.table <- regen.table %>% filter(!is.na(ACA))
   
   #xx <- forest %>% group_by(ACA) %>% summarise(BA = sum(pi*(DBH/200)^2))
